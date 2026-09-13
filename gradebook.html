@@ -47,7 +47,6 @@
   }
   .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
   .btn-accent { background: var(--accent); color: #2c3e50; }
-  .btn-danger { background: var(--danger); }
   .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .filter-row > * { flex: 1; min-width: 140px; padding: 8px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 14px; }
   .developer-credit { text-align: center; font-size: 12px; color: var(--muted); padding: 16px; margin-top: 20px; }
@@ -57,7 +56,6 @@
     .card { box-shadow: none; border: 1px solid #ddd; }
   }
 
-  /* PASSWORD GATE */
   .gate {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
@@ -107,7 +105,7 @@
     <div class="card no-print">
       <h2>🔍 Filters</h2>
       <div class="filter-row">
-        <input id="filterName" placeholder="Search name or ID..." oninput="renderGradebook()">
+        <input id="filterName" placeholder="Search name or LRN..." oninput="renderGradebook()">
         <select id="filterGrade" onchange="renderGradebook()">
           <option value="">All Grades</option>
           <option value="11">Grade 11</option>
@@ -136,7 +134,7 @@
         <table id="gradebookTable">
           <thead>
             <tr>
-              <th>Student ID</th>
+              <th>LRN</th>
               <th>Name</th>
               <th>Grade</th>
               <th>Section</th>
@@ -198,7 +196,6 @@ function lockGradebook() {
   document.getElementById('adminPassword').focus();
 }
 
-// Auto-unlock if already authenticated in this session
 (function init() {
   if (sessionStorage.getItem('ihs_admin_unlocked') === '1') {
     document.getElementById('passwordGate').style.display = 'none';
@@ -341,7 +338,7 @@ function renderStats(students) {
 
 function exportCSV() {
   const students = getFilteredStudents();
-  const rows = [['Student ID','First Name','Last Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','Status','XP']];
+  const rows = [['LRN','First Name','Last Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','Status','XP']];
   students.forEach(s => {
     const mockBest = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : '';
     const finalBest = s.finalAttempts && s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : '';
