@@ -74,6 +74,21 @@
   .gate-error { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 18px; }
   .main-content { display: none; }
   .main-content.unlocked { display: block; }
+
+  /* Sync indicator */
+  .sync-indicator {
+    display: inline-block; padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; margin-left: 8px;
+    background: #e0f7e9; color: #27ae60;
+  }
+  .sync-indicator.offline { background: #ffe0e0; color: #c0392b; }
+
+  /* Flash animation for auto-updated rows */
+  @keyframes flash {
+    0% { background: #fff9c4; }
+    100% { background: transparent; }
+  }
+  .flash-update { animation: flash 2s ease-out; }
 </style>
 </head>
 <body>
@@ -97,7 +112,7 @@
     <div class="header">
       <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
       <div class="header-text">
-        <h1>Gradebook</h1>
+        <h1>Gradebook <span class="sync-indicator" id="syncStatus">🔄 Live Sync On</span></h1>
         <p>Iba High School • Senior High School Department • Science Remediation</p>
       </div>
     </div>
@@ -119,7 +134,11 @@
       </div>
       <button class="btn btn-accent" onclick="window.print()">🖨️ Print Gradebook</button>
       <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+      <button class="btn btn-outline" onclick="manualRefresh()">🔄 Refresh Data</button>
       <button class="btn btn-outline" onclick="lockGradebook()">🔒 Lock Gradebook</button>
+      <p style="font-size:12px; color:var(--muted); margin-top:8px;">
+        Last refreshed: <span id="lastRefresh">—</span>
+      </p>
     </div>
 
     <div class="card">
@@ -168,6 +187,40 @@
    ADMIN PASSWORD (CHANGE THIS TO YOUR PREFERRED PASSWORD)
    ============================================================ */
 const ADMIN_PASSWORD = 'IHS-ADMIN-2026';
+
+/* ============================================================
+   BROADCAST CHANNEL (Solution 4 — Cross-Tab Auto Sync)
+   ============================================================ */
+const SYNC_CHANNEL_NAME = 'ihs_gradebook_sync';
+let syncChannel = null;
+try {
+  syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
+  syncChannel.onmessage = (event) => {
+    if (event.data && event.data.type === 'DATA_UPDATED') {
+      console.log('📡 Received sync signal from Instructor Dashboard:', event.data.action);
+      renderGradebook();
+      flashHeader('🔄 Updated: ' + event.data.action);
+    }
+  };
+} catch (e) {
+  console.warn('BroadcastChannel not supported in this browser. Using manual refresh only.');
+  const ind = document.getElementById('syncStatus');
+  if (ind) { ind.textContent = '⚠️ Manual Sync Only'; ind.classList.add('offline'); }
+}
+
+function flashHeader(text) {
+  const ind = document.getElementById('syncStatus');
+  if (!ind) return;
+  const original = ind.textContent;
+  ind.textContent = text;
+  ind.style.background = '#fff3cd';
+  ind.style.color = '#856404';
+  setTimeout(() => {
+    ind.textContent = original;
+    ind.style.background = '';
+    ind.style.color = '';
+  }, 2000);
+}
 
 /* ============================================================
    PASSWORD GATE
@@ -254,6 +307,7 @@ function renderGradebook() {
   if (students.length === 0) {
     tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; color:#7f8c8d; padding:20px;">No students found.</td></tr>';
     renderStats([]);
+    updateLastRefresh();
     return;
   }
 
@@ -292,6 +346,18 @@ function renderGradebook() {
   });
 
   renderStats(students);
+  updateLastRefresh();
+}
+
+function updateLastRefresh() {
+  const el = document.getElementById('lastRefresh');
+  if (el) el.textContent = new Date().toLocaleTimeString();
+}
+
+function manualRefresh() {
+  renderGradebook();
+  flashHeader('✅ Manually refreshed');
+  console.log('📊 Manual refresh triggered at', new Date().toLocaleTimeString());
 }
 
 function renderStats(students) {
@@ -365,6 +431,18 @@ function exportCSV() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+/* ============================================================
+   FALLBACK: Also listen to the native `storage` event
+   (in case BroadcastChannel is not supported)
+   ============================================================ */
+window.addEventListener('storage', function(e) {
+  if (e.key === STORAGE_KEY) {
+    console.log('📡 Storage event detected — refreshing gradebook...');
+    renderGradebook();
+    flashHeader('🔄 Updated (storage event)');
+  }
+});
 </script>
 </body>
 </html>
