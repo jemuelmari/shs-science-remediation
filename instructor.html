@@ -89,6 +89,14 @@
   .gate-error { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 18px; }
   .main-content { display: none; }
   .main-content.unlocked { display: block; }
+
+  /* Sync indicator */
+  .sync-indicator {
+    display: inline-block; padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; margin-left: 8px;
+    background: #e0f7e9; color: #27ae60;
+  }
+  .sync-indicator.offline { background: #ffe0e0; color: #c0392b; }
 </style>
 </head>
 <body>
@@ -112,14 +120,14 @@
     <div class="header">
       <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
       <div class="header-text">
-        <h1>Instructor Dashboard</h1>
+        <h1>Instructor Dashboard <span class="sync-indicator" id="syncStatus">🔄 Live Sync On</span></h1>
         <p>Iba High School • Senior High School Department</p>
       </div>
     </div>
 
     <div class="card">
       <h2>📥 Import Student Data</h2>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Paste the export code from the student's app below, then click Import.</p>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Paste the export code from the student's app below, then click Import. The Gradebook will auto-refresh.</p>
       <textarea id="importCode" placeholder="Paste the student's export code here..."></textarea>
       <div style="margin-top:8px;">
         <button class="btn btn-success" onclick="importStudent()">Import Student</button>
@@ -177,6 +185,27 @@
    ADMIN PASSWORD (CHANGE THIS TO YOUR PREFERRED PASSWORD)
    ============================================================ */
 const ADMIN_PASSWORD = 'IHS-ADMIN-2026';
+
+/* ============================================================
+   BROADCAST CHANNEL (Solution 4 — Cross-Tab Auto Sync)
+   ============================================================ */
+const SYNC_CHANNEL_NAME = 'ihs_gradebook_sync';
+let syncChannel = null;
+try {
+  syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
+} catch (e) {
+  console.warn('BroadcastChannel not supported in this browser.');
+}
+
+function broadcastUpdate(action) {
+  if (syncChannel) {
+    syncChannel.postMessage({
+      type: 'DATA_UPDATED',
+      action: action,
+      timestamp: Date.now()
+    });
+  }
+}
 
 /* ============================================================
    PASSWORD GATE
@@ -252,7 +281,8 @@ function importStudent() {
     store.students[key] = payload;
     saveStore(store);
     document.getElementById('importCode').value = '';
-    toast('Student imported successfully!');
+    toast('✅ Student imported. Gradebook will auto-refresh.');
+    broadcastUpdate('import');
     renderStudents();
   } catch(e) {
     toast('Invalid code. Please check and try again.');
@@ -326,6 +356,7 @@ function grantExtraAttempt(key) {
     s.finalAttempts.pop();
     saveStore(store);
     toast('Extra attempt granted.');
+    broadcastUpdate('grant_attempt');
     renderStudents();
   }
 }
@@ -345,6 +376,7 @@ function editInitial(key) {
   s.classification = score >= 43 ? 'ENRICHMENT' : 'REMEDIATION';
   saveStore(store);
   toast('Initial score updated.');
+  broadcastUpdate('edit_initial');
   renderStudents();
 }
 
@@ -356,6 +388,7 @@ function deleteStudent(key) {
   delete store.students[key];
   saveStore(store);
   toast('Student record deleted.');
+  broadcastUpdate('delete');
   renderStudents();
 }
 
@@ -364,6 +397,7 @@ function clearAllData() {
   if (!confirm('Final warning: this cannot be undone. Continue?')) return;
   localStorage.removeItem(STORAGE_KEY);
   toast('All data cleared.');
+  broadcastUpdate('clear_all');
   renderStudents();
 }
 
