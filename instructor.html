@@ -70,72 +70,156 @@
   .stat-box { background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center; }
   .stat-box .value { font-size: 22px; font-weight: 700; color: var(--primary); }
   .stat-box .label { font-size: 11px; color: var(--muted); }
+
+  /* PASSWORD GATE */
+  .gate {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 2000;
+  }
+  .gate-box {
+    background: white; border-radius: 16px; padding: 32px;
+    max-width: 420px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .gate-box img { width: 80px; height: 80px; border-radius: 50%; background: white; padding: 6px; margin-bottom: 16px; }
+  .gate-box h2 { font-size: 22px; color: var(--primary); margin-bottom: 8px; }
+  .gate-box p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .gate-box input { text-align: center; font-size: 16px; letter-spacing: 2px; }
+  .gate-error { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .main-content { display: none; }
+  .main-content.unlocked { display: block; }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
-    <div class="header-text">
-      <h1>Instructor Dashboard</h1>
-      <p>Iba High School • Senior High School Department</p>
+
+<!-- PASSWORD GATE -->
+<div id="passwordGate" class="gate">
+  <div class="gate-box">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Logo">
+    <h2>🔒 Restricted Access</h2>
+    <p>This page is for the developer/teacher only.<br>Please enter the admin password to continue.</p>
+    <input id="adminPassword" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()">
+    <div class="gate-error" id="gateError"></div>
+    <button class="btn" style="width:100%; margin-top:12px;" onclick="checkPassword()">Unlock</button>
+    <p style="margin-top:16px; font-size:12px; color:var(--muted);">Developer: JEMUEL C. MARI, MAN, RN, LPT</p>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="mainContent">
+  <div class="container">
+    <div class="header">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
+      <div class="header-text">
+        <h1>Instructor Dashboard</h1>
+        <p>Iba High School • Senior High School Department</p>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <h2>📥 Import Student Data</h2>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Paste the export code from the student's app below, then click Import.</p>
-    <textarea id="importCode" placeholder="Paste the student's export code here..."></textarea>
-    <div style="margin-top:8px;">
-      <button class="btn btn-success" onclick="importStudent()">Import Student</button>
-      <button class="btn btn-outline" onclick="clearImport()">Clear</button>
+    <div class="card">
+      <h2>📥 Import Student Data</h2>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Paste the export code from the student's app below, then click Import.</p>
+      <textarea id="importCode" placeholder="Paste the student's export code here..."></textarea>
+      <div style="margin-top:8px;">
+        <button class="btn btn-success" onclick="importStudent()">Import Student</button>
+        <button class="btn btn-outline" onclick="clearImport()">Clear</button>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <h2>🔍 Filter Students</h2>
-    <div class="filter-row">
-      <input id="filterName" placeholder="Search name or ID..." oninput="renderStudents()">
-      <select id="filterGrade" onchange="renderStudents()">
-        <option value="">All Grades</option>
-        <option value="11">Grade 11</option>
-        <option value="12">Grade 12</option>
-      </select>
-      <select id="filterSubject" onchange="renderStudents()">
-        <option value="">All Subjects</option>
-        <option value="General Science">General Science</option>
-        <option value="Physical Science">Physical Science</option>
-      </select>
-      <select id="filterClass" onchange="renderStudents()">
-        <option value="">All Classifications</option>
-        <option value="REMEDIATION">Remediation</option>
-        <option value="ENRICHMENT">Enrichment</option>
-      </select>
+    <div class="card">
+      <h2>🔍 Filter Students</h2>
+      <div class="filter-row">
+        <input id="filterName" placeholder="Search name or ID..." oninput="renderStudents()">
+        <select id="filterGrade" onchange="renderStudents()">
+          <option value="">All Grades</option>
+          <option value="11">Grade 11</option>
+          <option value="12">Grade 12</option>
+        </select>
+        <select id="filterSubject" onchange="renderStudents()">
+          <option value="">All Subjects</option>
+          <option value="General Science">General Science</option>
+          <option value="Physical Science">Physical Science</option>
+        </select>
+        <select id="filterClass" onchange="renderStudents()">
+          <option value="">All Classifications</option>
+          <option value="REMEDIATION">Remediation</option>
+          <option value="ENRICHMENT">Enrichment</option>
+        </select>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <h2>👥 Student Records</h2>
-    <div id="studentList"></div>
-  </div>
+    <div class="card">
+      <h2>👥 Student Records</h2>
+      <div id="studentList"></div>
+    </div>
 
-  <div class="card">
-    <h2>⚠️ Danger Zone</h2>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">These actions cannot be undone.</p>
-    <button class="btn btn-danger" onclick="clearAllData()">Clear All Device Data</button>
-    <button class="btn btn-outline" onclick="exportAllCSV()">Export All to CSV</button>
-  </div>
+    <div class="card">
+      <h2>⚠️ Danger Zone</h2>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">These actions cannot be undone.</p>
+      <button class="btn btn-danger" onclick="clearAllData()">Clear All Device Data</button>
+      <button class="btn btn-outline" onclick="exportAllCSV()">Export All to CSV</button>
+      <button class="btn btn-outline" onclick="lockDashboard()">🔒 Lock Dashboard</button>
+    </div>
 
-  <div class="developer-credit">
-    Developed by <strong>JEMUEL C. MARI, MAN, RN, LPT</strong><br>
-    Senior High School, Teacher II<br>
-    Iba High School • San Jose, Tarlac
+    <div class="developer-credit">
+      Developed by <strong>JEMUEL C. MARI, MAN, RN, LPT</strong><br>
+      Senior High School, Teacher II<br>
+      Iba High School • San Jose, Tarlac
+    </div>
   </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
+/* ============================================================
+   ADMIN PASSWORD (CHANGE THIS TO YOUR PREFERRED PASSWORD)
+   ============================================================ */
+const ADMIN_PASSWORD = 'IHS-ADMIN-2026';
+
+/* ============================================================
+   PASSWORD GATE
+   ============================================================ */
+function checkPassword() {
+  const input = document.getElementById('adminPassword').value;
+  const err = document.getElementById('gateError');
+  if (input === ADMIN_PASSWORD) {
+    document.getElementById('passwordGate').style.display = 'none';
+    document.getElementById('mainContent').classList.add('unlocked');
+    sessionStorage.setItem('ihs_admin_unlocked', '1');
+    renderStudents();
+  } else {
+    err.textContent = 'Incorrect password. Please try again.';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminPassword').focus();
+  }
+}
+
+function lockDashboard() {
+  sessionStorage.removeItem('ihs_admin_unlocked');
+  document.getElementById('passwordGate').style.display = 'flex';
+  document.getElementById('mainContent').classList.remove('unlocked');
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('gateError').textContent = '';
+  document.getElementById('adminPassword').focus();
+}
+
+// Auto-unlock if already authenticated in this session
+(function init() {
+  if (sessionStorage.getItem('ihs_admin_unlocked') === '1') {
+    document.getElementById('passwordGate').style.display = 'none';
+    document.getElementById('mainContent').classList.add('unlocked');
+    renderStudents();
+  } else {
+    document.getElementById('adminPassword').focus();
+  }
+})();
+
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
 const STORAGE_KEY = 'ihs_science_remediation_v1';
 
 function getStore() {
@@ -309,8 +393,6 @@ function exportAllCSV() {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-renderStudents();
 </script>
 </body>
 </html>
