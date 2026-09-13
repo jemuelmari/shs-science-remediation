@@ -30,7 +30,7 @@
     background: white;
     border-radius: 16px;
     padding: 32px;
-    max-width: 600px;
+    max-width: 500px;
     width: 100%;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     text-align: center;
@@ -63,40 +63,39 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 18px;
-    background: #f8f9fa;
-    border: 2px solid #ecf0f1;
+    padding: 20px;
+    background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+    border: 2px solid var(--primary);
     border-radius: 12px;
     text-decoration: none;
-    color: var(--text);
+    color: white;
     transition: all 0.2s;
     text-align: left;
+    box-shadow: 0 4px 12px rgba(26, 58, 107, 0.2);
   }
   .option-card:hover {
-    border-color: var(--accent);
-    background: #fffdf5;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(26, 58, 107, 0.35);
   }
   .option-icon {
-    font-size: 32px;
-    width: 56px;
-    height: 56px;
+    font-size: 36px;
+    width: 64px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     flex-shrink: 0;
   }
   .option-text h3 {
-    font-size: 16px;
-    color: var(--primary);
+    font-size: 18px;
+    color: white;
     margin-bottom: 4px;
   }
   .option-text p {
     font-size: 13px;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.85);
   }
   .developer-credit {
     margin-top: 24px;
@@ -123,20 +122,6 @@
         <div class="option-text">
           <h3>Student App</h3>
           <p>Log in, review, take mock and final exams</p>
-        </div>
-      </a>
-      <a href="instructor.html" class="option-card">
-        <div class="option-icon">👨‍🏫</div>
-        <div class="option-text">
-          <h3>Instructor Dashboard</h3>
-          <p>Import student data, manage records, grant attempts</p>
-        </div>
-      </a>
-      <a href="gradebook.html" class="option-card">
-        <div class="option-icon">📊</div>
-        <div class="option-text">
-          <h3>Gradebook</h3>
-          <p>View consolidated records, statistics, and print</p>
         </div>
       </a>
     </div>
