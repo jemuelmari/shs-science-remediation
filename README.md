@@ -5,8 +5,20 @@ A gamified, interactive web application for Senior High School students taking r
 ## 🎯 Features
 
 - **Student App** (`student.html`): Login, review modules, mock exam, final exam, results, and data export via QR code.
-- **Instructor Dashboard** (`instructor.html`): Import student records, view progress, grant extra attempts, edit initial scores, export to CSV.
-- **Gradebook** (`gradebook.html`): Consolidated view with statistical summary, printable layout.
+- **Instructor Dashboard** (`instructor.html`): **Password-protected.** Import student records, view progress, grant extra attempts, edit initial scores, export to CSV.
+- **Gradebook** (`gradebook.html`): **Password-protected.** Consolidated view with statistical summary, printable layout.
+
+## 🔐 Access Control
+
+The Instructor Dashboard and Gradebook are **restricted to the developer/teacher only**.
+
+- Students can only access `student.html`.
+- The landing page (`index.html`) shows **only the Student App**.
+- Instructor and Gradebook pages require a password.
+
+**Default password:** `IHS-ADMIN-2026`
+
+> ⚠️ Change the password by editing the `ADMIN_PASSWORD` constant inside `instructor.html` and `gradebook.html`.
 
 ## 📚 Subjects Covered
 
@@ -42,7 +54,7 @@ A gamified, interactive web application for Senior High School students taking r
 3. Go to **Settings → Pages**.
 4. Under **Source**, select `main` branch and `/ (root)` folder.
 5. Click **Save**.
-6. Your app will be live at:  
+6. Your app will be live at:
    `https://<your-username>.github.io/iba-science-remediation/`
 
 ### Option 2: Local Use
@@ -53,34 +65,41 @@ A gamified, interactive web application for Senior High School students taking r
 
 ## 📱 How Students Use It
 
-1. Open `student.html`.
-2. Log in with name, student ID, grade level, section, term, subject, and initial score.
-3. Review all modules.
-4. Take the mock exam (unlimited attempts, immediate feedback).
-5. Score **43/60** or higher to unlock the Final Exam.
-6. Take the Final Exam (3 attempts max, 90 minutes each).
-7. View results with proficiency level.
-8. Export data as a QR code or copyable code.
+1. Open the app link.
+2. Click **Student App**.
+3. Log in with name, student ID, grade level, section, term, subject, and initial score.
+4. Review all modules.
+5. Take the mock exam (unlimited attempts, immediate feedback).
+6. Score **43/60** or higher to unlock the Final Exam.
+7. Take the Final Exam (3 attempts max, 90 minutes each).
+8. View results with proficiency level.
+9. Export data as a QR code or copyable code.
 
-## 👨‍🏫 How Instructors Use It
+## 👨‍🏫 How the Developer/Teacher Uses It
 
-1. Open `instructor.html`.
-2. Paste the student's export code into the Import field.
-3. View the student's record.
-4. Optionally grant extra attempts or edit initial scores.
-5. Export all student data to CSV.
+1. Open `instructor.html` directly.
+2. Enter the admin password.
+3. Paste the student's export code into the Import field.
+4. View the student's record.
+5. Optionally grant extra attempts or edit initial scores.
+6. Export all student data to CSV.
 
 ## 🖨️ How to Print the Gradebook
 
-1. Open `gradebook.html`.
-2. Apply filters (grade level, subject, etc.).
-3. Click **Print Gradebook**.
-4. Use the browser's print dialog to save as PDF or print.
+1. Open `gradebook.html` directly.
+2. Enter the admin password.
+3. Apply filters (grade level, subject, etc.).
+4. Click **Print Gradebook**.
+5. Use the browser's print dialog to save as PDF or print.
+
+## ⚠️ Security Note
+
+The password gate is **client-side only** and is intended to prevent accidental student access — not as a hardened security measure. For production use with sensitive data, implement server-side authentication.
 
 ## 👨‍💻 Developer
 
-**JEMUEL C. MARI, MAN, RN, LPT**  
-Senior High School, Teacher II  
+**JEMUEL C. MARI, MAN, RN, LPT**
+Senior High School, Teacher II
 Iba High School • San Jose, Tarlac
 
 ## 📜 License
