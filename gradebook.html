@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradebook - Iba High School</title>
+<style>
+  :root {
+    --primary: #1a3a6b;
+    --accent: #f5a623;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+  .header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px; background: var(--primary); color: white;
+    border-radius: 12px; margin-bottom: 16px;
+  }
+  .header img { width: 56px; height: 56px; border-radius: 50%; background: white; padding: 4px; }
+  .header-text h1 { font-size: 20px; }
+  .header-text p { font-size: 12px; opacity: 0.9; }
+  .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  h2 { font-size: 20px; margin-bottom: 12px; color: var(--primary); }
+  h3 { font-size: 16px; margin: 16px 0 8px; color: var(--primary); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #ecf0f1; }
+  th { background: #f8f9fa; font-weight: 700; color: var(--primary); position: sticky; top: 0; }
+  tr:hover { background: #f8f9fa; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-remediation { background: #ffe0e0; color: #c0392b; }
+  .badge-enrichment { background: #e0f7e9; color: #27ae60; }
+  .badge-pass { background: #e0f7e9; color: #27ae60; }
+  .badge-fail { background: #ffe0e0; color: #c0392b; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
+  .stat-box { background: #f8f9fa; padding: 14px; border-radius: 8px; text-align: center; }
+  .stat-box .value { font-size: 24px; font-weight: 700; color: var(--primary); }
+  .stat-box .label { font-size: 12px; color: var(--muted); }
+  .btn {
+    display: inline-block; padding: 10px 18px; background: var(--primary); color: white;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    margin: 4px 4px 4px 0;
+  }
+  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-accent { background: var(--accent); color: #2c3e50; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filter-row > * { flex: 1; min-width: 140px; padding: 8px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 14px; }
+  .developer-credit { text-align: center; font-size: 12px; color: var(--muted); padding: 16px; margin-top: 20px; }
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+    .card { box-shadow: none; border: 1px solid #ddd; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
+    <div class="header-text">
+      <h1>Gradebook</h1>
+      <p>Iba High School • Senior High School Department • Science Remediation</p>
+    </div>
+  </div>
+
+  <div class="card no-print">
+    <h2>🔍 Filters</h2>
+    <div class="filter-row">
+      <input id="filterName" placeholder="Search name or ID..." oninput="renderGradebook()">
+      <select id="filterGrade" onchange="renderGradebook()">
+        <option value="">All Grades</option>
+        <option value="11">Grade 11</option>
+        <option value="12">Grade 12</option>
+      </select>
+      <select id="filterSubject" onchange="renderGradebook()">
+        <option value="">All Subjects</option>
+        <option value="General Science">General Science</option>
+        <option value="Physical Science">Physical Science</option>
+      </select>
+    </div>
+    <button class="btn btn-accent" onclick="window.print()">🖨️ Print Gradebook</button>
+    <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+  </div>
+
+  <div class="card">
+    <h2>📊 Statistical Summary</h2>
+    <div class="stat-grid" id="statGrid"></div>
+    <div id="statDetails" style="margin-top:12px; font-size:14px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Student Records</h2>
+    <div style="overflow-x:auto;">
+      <table id="gradebookTable">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Grade</th>
+            <th>Section</th>
+            <th>Subject</th>
+            <th>Term</th>
+            <th>Initial</th>
+            <th>Class</th>
+            <th>Mock Best</th>
+            <th>Final Attempts</th>
+            <th>Final Best</th>
+            <th>Proficiency</th>
+            <th>Status</th>
+            <th>XP</th>
+          </tr>
+        </thead>
+        <tbody id="gradebookBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="developer-credit">
+    Developed by <strong>JEMUEL C. MARI, MAN, RN, LPT</strong><br>
+    Senior High School, Teacher II<br>
+    Iba High School • San Jose, Tarlac
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'ihs_science_remediation_v1';
+const PASS_THRESHOLD = 43;
+
+function getStore() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { students: {} }; }
+  catch(e) { return { students: {} }; }
+}
+function getProficiency(score) {
+  const pct = (score / 60) * 100;
+  if (pct >= 90) return 'Outstanding';
+  if (pct >= 80) return 'Very Satisfactory';
+  if (pct >= 70) return 'Satisfactory';
+  if (pct >= 60) return 'Fairly Satisfactory';
+  return 'Did Not Meet Expectations';
+}
+function getProficiencyColor(score) {
+  const pct = (score / 60) * 100;
+  if (pct >= 90) return '#27ae60';
+  if (pct >= 80) return '#2ecc71';
+  if (pct >= 70) return '#f39c12';
+  if (pct >= 60) return '#e67e22';
+  return '#e74c3c';
+}
+
+function getFilteredStudents() {
+  const store = getStore();
+  const nameFilter = document.getElementById('filterName').value.toLowerCase();
+  const gradeFilter = document.getElementById('filterGrade').value;
+  const subjectFilter = document.getElementById('filterSubject').value;
+  return Object.values(store.students).filter(s => {
+    if (nameFilter && !(`${s.firstName} ${s.lastName} ${s.studentId}`.toLowerCase().includes(nameFilter))) return false;
+    if (gradeFilter && s.gradeLevel !== gradeFilter) return false;
+    if (subjectFilter && s.subject !== subjectFilter) return false;
+    return true;
+  });
+}
+
+function renderGradebook() {
+  const students = getFilteredStudents();
+  const tbody = document.getElementById('gradebookBody');
+  tbody.innerHTML = '';
+
+  if (students.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; color:#7f8c8d; padding:20px;">No students found.</td></tr>';
+    renderStats([]);
+    return;
+  }
+
+  students.forEach(s => {
+    const mockBest = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : null;
+    const finalBest = s.finalAttempts && s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : null;
+    const finalCount = s.finalAttempts ? s.finalAttempts.length : 0;
+    const proficiency = finalBest !== null ? getProficiency(finalBest) : '—';
+    const proficiencyColor = finalBest !== null ? getProficiencyColor(finalBest) : '#7f8c8d';
+    let status = '—';
+    if (s.classification === 'ENRICHMENT') status = 'Enrichment';
+    else if (finalCount >= 3 && finalBest !== null && finalBest < PASS_THRESHOLD) status = 'For Intervention';
+    else if (finalBest !== null && finalBest >= PASS_THRESHOLD) status = 'Passed';
+    else if (finalCount > 0) status = 'In Progress';
+    else if (mockBest !== null && mockBest >= PASS_THRESHOLD) status = 'Ready for Final';
+    else status = 'Reviewing';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${s.studentId}</td>
+      <td>${s.firstName} ${s.lastName}</td>
+      <td>${s.gradeLevel}</td>
+      <td>${s.section}</td>
+      <td>${s.subject}</td>
+      <td>${s.term}</td>
+      <td>${s.initialScore}/60</td>
+      <td><span class="badge ${s.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment'}">${s.classification}</span></td>
+      <td>${mockBest !== null ? mockBest + '/60' : '—'}</td>
+      <td>${finalCount}/3</td>
+      <td>${finalBest !== null ? finalBest + '/60' : '—'}</td>
+      <td style="color:${proficiencyColor}; font-weight:600;">${proficiency}</td>
+      <td>${status}</td>
+      <td>${s.xp || 0}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderStats(students);
+}
+
+function renderStats(students) {
+  const grid = document.getElementById('statGrid');
+  const details = document.getElementById('statDetails');
+
+  if (students.length === 0) {
+    grid.innerHTML = '<p style="color:#7f8c8d;">No data available.</p>';
+    details.innerHTML = '';
+    return;
+  }
+
+  const finalScores = students
+    .filter(s => s.finalAttempts && s.finalAttempts.length > 0)
+    .map(s => ({ name: `${s.firstName} ${s.lastName}`, score: Math.max(...s.finalAttempts.map(a => a.score)) }));
+
+  const highest = finalScores.length ? Math.max(...finalScores.map(f => f.score)) : 0;
+  const lowest = finalScores.length ? Math.min(...finalScores.map(f => f.score)) : 0;
+  const highestStudents = finalScores.filter(f => f.score === highest).map(f => f.name);
+  const lowestStudents = finalScores.filter(f => f.score === lowest).map(f => f.name);
+  const passed = finalScores.filter(f => f.score >= PASS_THRESHOLD).length;
+  const failed = finalScores.filter(f => f.score < PASS_THRESHOLD).length;
+  const avg = finalScores.length ? (finalScores.reduce((a, b) => a + b.score, 0) / finalScores.length).toFixed(2) : 0;
+  const passRate = finalScores.length ? ((passed / finalScores.length) * 100).toFixed(1) : 0;
+
+  grid.innerHTML = `
+    <div class="stat-box"><div class="value">${students.length}</div><div class="label">Total Students</div></div>
+    <div class="stat-box"><div class="value">${finalScores.length}</div><div class="label">With Final Attempts</div></div>
+    <div class="stat-box"><div class="value">${highest}</div><div class="label">Highest Score</div></div>
+    <div class="stat-box"><div class="value">${lowest}</div><div class="label">Lowest Score</div></div>
+    <div class="stat-box"><div class="value">${avg}</div><div class="label">Average Score</div></div>
+    <div class="stat-box"><div class="value" style="color:var(--success);">${passed}</div><div class="label">Passed</div></div>
+    <div class="stat-box"><div class="value" style="color:var(--danger);">${failed}</div><div class="label">Failed</div></div>
+    <div class="stat-box"><div class="value">${passRate}%</div><div class="label">Pass Rate</div></div>
+  `;
+
+  details.innerHTML = `
+    <p><strong>Highest Score:</strong> ${highest}/60 — ${highestStudents.join(', ') || 'N/A'}</p>
+    <p><strong>Lowest Score:</strong> ${lowest}/60 — ${lowestStudents.join(', ') || 'N/A'}</p>
+    <p><strong>Passed (≥${PASS_THRESHOLD}/60):</strong> ${passed} student(s)</p>
+    <p><strong>Failed (&lt;${PASS_THRESHOLD}/60):</strong> ${failed} student(s)</p>
+  `;
+}
+
+function exportCSV() {
+  const students = getFilteredStudents();
+  const rows = [['Student ID','First Name','Last Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','Status','XP']];
+  students.forEach(s => {
+    const mockBest = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : '';
+    const finalBest = s.finalAttempts && s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : '';
+    let status = '';
+    if (s.classification === 'ENRICHMENT') status = 'Enrichment';
+    else if (s.finalAttempts && s.finalAttempts.length >= 3 && finalBest < PASS_THRESHOLD) status = 'For Intervention';
+    else if (finalBest !== '' && finalBest >= PASS_THRESHOLD) status = 'Passed';
+    else status = 'In Progress';
+    rows.push([
+      s.studentId, s.firstName, s.lastName, s.gradeLevel, s.section, s.subject, s.term,
+      s.initialScore, s.classification,
+      s.mockAttempts ? s.mockAttempts.length : 0, mockBest,
+      s.finalAttempts ? s.finalAttempts.length : 0, finalBest,
+      finalBest !== '' ? getProficiency(finalBest) : '',
+      status, s.xp || 0
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `IHS_Gradebook_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+renderGradebook();
+</script>
+</body>
+</html>

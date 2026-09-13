@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Dashboard - Iba High School</title>
+<style>
+  :root {
+    --primary: #1a3a6b;
+    --accent: #f5a623;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 16px; }
+  .header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px; background: var(--primary); color: white;
+    border-radius: 12px; margin-bottom: 16px;
+  }
+  .header img { width: 56px; height: 56px; border-radius: 50%; background: white; padding: 4px; }
+  .header-text h1 { font-size: 20px; }
+  .header-text p { font-size: 12px; opacity: 0.9; }
+  .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  h2 { font-size: 20px; margin-bottom: 12px; color: var(--primary); }
+  .btn {
+    display: inline-block; padding: 10px 18px; background: var(--primary); color: white;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    margin: 4px 4px 4px 0; transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-accent { background: var(--accent); color: #2c3e50; }
+  .btn-success { background: var(--success); }
+  .btn-danger { background: var(--danger); }
+  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  input, select, textarea {
+    width: 100%; padding: 10px 12px; border: 2px solid #dfe6e9;
+    border-radius: 8px; font-size: 14px; font-family: inherit;
+  }
+  textarea { min-height: 100px; font-family: monospace; font-size: 12px; }
+  label { display: block; margin: 8px 0 4px; font-weight: 600; font-size: 14px; }
+  .student-card {
+    border: 2px solid #ecf0f1; border-radius: 10px; padding: 14px;
+    margin-bottom: 10px;
+  }
+  .student-card h4 { font-size: 16px; margin-bottom: 4px; }
+  .student-card .meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-remediation { background: #ffe0e0; color: #c0392b; }
+  .badge-enrichment { background: #e0f7e9; color: #27ae60; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filter-row > * { flex: 1; min-width: 140px; }
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--primary); color: white; padding: 12px 20px;
+    border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity 0.3s;
+    z-index: 1000; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  .developer-credit {
+    text-align: center; font-size: 12px; color: var(--muted);
+    padding: 16px; margin-top: 20px;
+  }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+  .stat-box { background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center; }
+  .stat-box .value { font-size: 22px; font-weight: 700; color: var(--primary); }
+  .stat-box .label { font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
+    <div class="header-text">
+      <h1>Instructor Dashboard</h1>
+      <p>Iba High School • Senior High School Department</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📥 Import Student Data</h2>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Paste the export code from the student's app below, then click Import.</p>
+    <textarea id="importCode" placeholder="Paste the student's export code here..."></textarea>
+    <div style="margin-top:8px;">
+      <button class="btn btn-success" onclick="importStudent()">Import Student</button>
+      <button class="btn btn-outline" onclick="clearImport()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔍 Filter Students</h2>
+    <div class="filter-row">
+      <input id="filterName" placeholder="Search name or ID..." oninput="renderStudents()">
+      <select id="filterGrade" onchange="renderStudents()">
+        <option value="">All Grades</option>
+        <option value="11">Grade 11</option>
+        <option value="12">Grade 12</option>
+      </select>
+      <select id="filterSubject" onchange="renderStudents()">
+        <option value="">All Subjects</option>
+        <option value="General Science">General Science</option>
+        <option value="Physical Science">Physical Science</option>
+      </select>
+      <select id="filterClass" onchange="renderStudents()">
+        <option value="">All Classifications</option>
+        <option value="REMEDIATION">Remediation</option>
+        <option value="ENRICHMENT">Enrichment</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>👥 Student Records</h2>
+    <div id="studentList"></div>
+  </div>
+
+  <div class="card">
+    <h2>⚠️ Danger Zone</h2>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">These actions cannot be undone.</p>
+    <button class="btn btn-danger" onclick="clearAllData()">Clear All Device Data</button>
+    <button class="btn btn-outline" onclick="exportAllCSV()">Export All to CSV</button>
+  </div>
+
+  <div class="developer-credit">
+    Developed by <strong>JEMUEL C. MARI, MAN, RN, LPT</strong><br>
+    Senior High School, Teacher II<br>
+    Iba High School • San Jose, Tarlac
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORAGE_KEY = 'ihs_science_remediation_v1';
+
+function getStore() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { students: {} }; }
+  catch(e) { return { students: {} }; }
+}
+function saveStore(store) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+}
+function toast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+function getProficiency(score) {
+  const pct = (score / 60) * 100;
+  if (pct >= 90) return 'Outstanding';
+  if (pct >= 80) return 'Very Satisfactory';
+  if (pct >= 70) return 'Satisfactory';
+  if (pct >= 60) return 'Fairly Satisfactory';
+  return 'Did Not Meet Expectations';
+}
+
+function importStudent() {
+  const code = document.getElementById('importCode').value.trim();
+  if (!code) { toast('Please paste an export code.'); return; }
+  try {
+    const payload = JSON.parse(decodeURIComponent(escape(atob(code))));
+    const store = getStore();
+    const key = `${payload.studentId}_${payload.term}_${payload.subject}`;
+    store.students[key] = payload;
+    saveStore(store);
+    document.getElementById('importCode').value = '';
+    toast('Student imported successfully!');
+    renderStudents();
+  } catch(e) {
+    toast('Invalid code. Please check and try again.');
+  }
+}
+function clearImport() {
+  document.getElementById('importCode').value = '';
+}
+
+function renderStudents() {
+  const store = getStore();
+  const nameFilter = document.getElementById('filterName').value.toLowerCase();
+  const gradeFilter = document.getElementById('filterGrade').value;
+  const subjectFilter = document.getElementById('filterSubject').value;
+  const classFilter = document.getElementById('filterClass').value;
+
+  const list = document.getElementById('studentList');
+  list.innerHTML = '';
+
+  let students = Object.entries(store.students);
+  students = students.filter(([k, s]) => {
+    if (nameFilter && !(`${s.firstName} ${s.lastName} ${s.studentId}`.toLowerCase().includes(nameFilter))) return false;
+    if (gradeFilter && s.gradeLevel !== gradeFilter) return false;
+    if (subjectFilter && s.subject !== subjectFilter) return false;
+    if (classFilter && s.classification !== classFilter) return false;
+    return true;
+  });
+
+  if (students.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted); font-size:14px;">No students found.</p>';
+    return;
+  }
+
+  students.forEach(([key, s]) => {
+    const bestMock = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : null;
+    const lastFinal = s.finalAttempts && s.finalAttempts.length ? s.finalAttempts[s.finalAttempts.length - 1].score : null;
+    const div = document.createElement('div');
+    div.className = 'student-card';
+    div.innerHTML = `
+      <h4>${s.firstName} ${s.lastName}</h4>
+      <div class="meta">${s.studentId} • Grade ${s.gradeLevel} • ${s.section} • ${s.subject} • Term ${s.term}</div>
+      <span class="badge ${s.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment'}">${s.classification}</span>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="value">${s.initialScore}/60</div><div class="label">Initial</div></div>
+        <div class="stat-box"><div class="value">${bestMock !== null ? bestMock + '/60' : '—'}</div><div class="label">Mock Best</div></div>
+        <div class="stat-box"><div class="value">${s.finalAttempts ? s.finalAttempts.length : 0}/3</div><div class="label">Final Attempts</div></div>
+        <div class="stat-box"><div class="value">${lastFinal !== null ? lastFinal + '/60' : '—'}</div><div class="label">Final Score</div></div>
+        <div class="stat-box"><div class="value">${lastFinal !== null ? getProficiency(lastFinal) : '—'}</div><div class="label">Proficiency</div></div>
+        <div class="stat-box"><div class="value">${s.xp || 0}</div><div class="label">XP</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <button class="btn btn-accent" onclick="grantExtraAttempt('${key}')">Grant Extra Attempt</button>
+        <button class="btn btn-outline" onclick="editInitial('${key}')">Edit Initial Score</button>
+        <button class="btn btn-danger" onclick="deleteStudent('${key}')">Delete</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function grantExtraAttempt(key) {
+  const store = getStore();
+  const s = store.students[key];
+  if (!s) return;
+  if (!s.finalAttempts) s.finalAttempts = [];
+  if (s.finalAttempts.length === 0) {
+    toast('Student has no final attempts yet.');
+    return;
+  }
+  if (confirm(`Grant one extra Final Exam attempt to ${s.firstName} ${s.lastName}?`)) {
+    s.finalAttempts.pop();
+    saveStore(store);
+    toast('Extra attempt granted.');
+    renderStudents();
+  }
+}
+
+function editInitial(key) {
+  const store = getStore();
+  const s = store.students[key];
+  if (!s) return;
+  const newScore = prompt(`Enter new initial score for ${s.firstName} ${s.lastName} (0-60):`, s.initialScore);
+  if (newScore === null) return;
+  const score = parseInt(newScore, 10);
+  if (isNaN(score) || score < 0 || score > 60) {
+    toast('Invalid score.');
+    return;
+  }
+  s.initialScore = score;
+  s.classification = score >= 43 ? 'ENRICHMENT' : 'REMEDIATION';
+  saveStore(store);
+  toast('Initial score updated.');
+  renderStudents();
+}
+
+function deleteStudent(key) {
+  const store = getStore();
+  const s = store.students[key];
+  if (!s) return;
+  if (!confirm(`Delete record for ${s.firstName} ${s.lastName}? This cannot be undone.`)) return;
+  delete store.students[key];
+  saveStore(store);
+  toast('Student record deleted.');
+  renderStudents();
+}
+
+function clearAllData() {
+  if (!confirm('This will delete ALL student data on this device. Are you sure?')) return;
+  if (!confirm('Final warning: this cannot be undone. Continue?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  toast('All data cleared.');
+  renderStudents();
+}
+
+function exportAllCSV() {
+  const store = getStore();
+  const rows = [['Student ID','First Name','Last Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','XP']];
+  Object.values(store.students).forEach(s => {
+    const mockBest = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : '';
+    const finalBest = s.finalAttempts && s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : '';
+    rows.push([
+      s.studentId, s.firstName, s.lastName, s.gradeLevel, s.section, s.subject, s.term,
+      s.initialScore, s.classification,
+      s.mockAttempts ? s.mockAttempts.length : 0, mockBest,
+      s.finalAttempts ? s.finalAttempts.length : 0, finalBest,
+      finalBest !== '' ? getProficiency(finalBest) : '',
+      s.xp || 0
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `IHS_Science_Remediation_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+renderStudents();
+</script>
+</body>
+</html>

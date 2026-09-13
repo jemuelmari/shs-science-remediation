@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iba High School — Science Remediation</title>
+<style>
+  :root {
+    --primary: #1a3a6b;
+    --accent: #f5a623;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .launcher {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: white;
+    padding: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 24px;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .options {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .option-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px;
+    background: #f8f9fa;
+    border: 2px solid #ecf0f1;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .option-card:hover {
+    border-color: var(--accent);
+    background: #fffdf5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  }
+  .option-icon {
+    font-size: 32px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .option-text h3 {
+    font-size: 16px;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+  .option-text p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .developer-credit {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #ecf0f1;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  @media (max-width: 500px) {
+    .launcher { padding: 24px 20px; }
+    h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+  <div class="launcher">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo" class="logo">
+    <h1>Iba High School</h1>
+    <p class="subtitle">Senior High School Department<br>Science Remediation & Enrichment App</p>
+
+    <div class="options">
+      <a href="student.html" class="option-card">
+        <div class="option-icon">🎓</div>
+        <div class="option-text">
+          <h3>Student App</h3>
+          <p>Log in, review, take mock and final exams</p>
+        </div>
+      </a>
+      <a href="instructor.html" class="option-card">
+        <div class="option-icon">👨‍🏫</div>
+        <div class="option-text">
+          <h3>Instructor Dashboard</h3>
+          <p>Import student data, manage records, grant attempts</p>
+        </div>
+      </a>
+      <a href="gradebook.html" class="option-card">
+        <div class="option-icon">📊</div>
+        <div class="option-text">
+          <h3>Gradebook</h3>
+          <p>View consolidated records, statistics, and print</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="developer-credit">
+      Developed by <strong>JEMUEL C. MARI, MAN, RN, LPT</strong><br>
+      Senior High School, Teacher II<br>
+      Iba High School • San Jose, Tarlac
+    </div>
+  </div>
+</body>
+</html>

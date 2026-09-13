@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iba High School - Science Remediation</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --primary: #1a3a6b;
+    --accent: #f5a623;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .app-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .header img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: white;
+    padding: 4px;
+  }
+  .header-text h1 { font-size: 18px; }
+  .header-text p { font-size: 12px; opacity: 0.9; }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  h2 { font-size: 20px; margin-bottom: 12px; color: var(--primary); }
+  h3 { font-size: 16px; margin: 16px 0 8px; color: var(--primary); }
+  label { display: block; margin: 10px 0 4px; font-weight: 600; font-size: 14px; }
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  .btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+    margin: 6px 4px 6px 0;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-accent { background: var(--accent); color: #2c3e50; }
+  .btn-success { background: var(--success); }
+  .btn-danger { background: var(--danger); }
+  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .badge-remediation { background: #ffe0e0; color: #c0392b; }
+  .badge-enrichment { background: #e0f7e9; color: #27ae60; }
+  .progress-bar {
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--success));
+    transition: width 0.4s;
+  }
+  .module-card {
+    border: 2px solid #ecf0f1;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .module-card:hover { border-color: var(--accent); background: #fffdf5; }
+  .module-card.reviewed { border-color: var(--success); background: #f0fff4; }
+  .module-card h4 { font-size: 15px; margin-bottom: 4px; }
+  .module-card p { font-size: 13px; color: var(--muted); }
+  .question-box {
+    background: #f8f9fa;
+    border-left: 4px solid var(--primary);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .question-text { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+  .option {
+    display: block;
+    padding: 12px 14px;
+    background: white;
+    border: 2px solid #dfe6e9;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+  }
+  .option:hover { border-color: var(--primary); }
+  .option.selected { border-color: var(--primary); background: #eef4fb; }
+  .option.correct { border-color: var(--success); background: #e8f8f0; }
+  .option.wrong { border-color: var(--danger); background: #fdecea; }
+  .feedback {
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+  .feedback.correct { background: #e8f8f0; border-left: 4px solid var(--success); }
+  .feedback.wrong { background: #fdecea; border-left: 4px solid var(--danger); }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .stat-box {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  .stat-box .value { font-size: 24px; font-weight: 700; color: var(--primary); }
+  .stat-box .label { font-size: 12px; color: var(--muted); }
+  .timer {
+    background: var(--danger);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    display: inline-block;
+    font-size: 16px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  .modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 16px;
+  }
+  .modal.show { display: flex; }
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .hidden { display: none !important; }
+  .developer-credit {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 16px;
+    margin-top: 20px;
+  }
+  @media (max-width: 600px) {
+    .header-text h1 { font-size: 15px; }
+    .header img { width: 44px; height: 44px; }
+    .btn { width: 100%; margin: 4px 0; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- HEADER -->
+  <div class="header">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
+    <div class="header-text">
+      <h1>Iba High School</h1>
+      <p>Senior High School Department • Science Remediation</p>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen">
+    <div class="card">
+      <h2>🎓 Student Login</h2>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:12px;">Enter your details to begin remediation or enrichment.</p>
+
+      <label>First Name</label>
+      <input id="firstName" type="text" placeholder="e.g., Juan" autocomplete="given-name">
+
+      <label>Last Name</label>
+      <input id="lastName" type="text" placeholder="e.g., Dela Cruz" autocomplete="family-name">
+
+      <label>Student ID</label>
+      <input id="studentId" type="text" placeholder="e.g., 2024-00123" autocomplete="off">
+
+      <label>Grade Level</label>
+      <select id="gradeLevel">
+        <option value="">-- Select Grade --</option>
+        <option value="11">Grade 11</option>
+        <option value="12">Grade 12</option>
+      </select>
+
+      <label>Section</label>
+      <input id="section" type="text" placeholder="e.g., STEM-11A" list="sectionList">
+      <datalist id="sectionList"></datalist>
+
+      <label>Term</label>
+      <select id="term">
+        <option value="">-- Select Term --</option>
+        <option value="1">Term 1</option>
+        <option value="2">Term 2</option>
+        <option value="3">Term 3</option>
+      </select>
+
+      <label>Subject</label>
+      <select id="subject">
+        <option value="">-- Select Grade Level First --</option>
+      </select>
+
+      <label>Initial Score (out of 60)</label>
+      <input id="initialScore" type="number" min="0" max="60" placeholder="e.g., 35">
+
+      <div style="margin-top:16px;">
+        <button class="btn btn-success" onclick="handleLogin()">Login & Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SCREEN -->
+  <div id="dashboardScreen" class="hidden">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <div>
+          <h2 id="welcomeText">Welcome!</h2>
+          <p id="studentInfo" style="font-size:14px; color:var(--muted);"></p>
+        </div>
+        <div>
+          <span id="classificationBadge" class="badge"></span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="value" id="xpValue">0</div><div class="label">XP</div></div>
+        <div class="stat-box"><div class="value" id="mockBest">—</div><div class="label">Mock Best</div></div>
+        <div class="stat-box"><div class="value" id="finalAttempts">0/3</div><div class="label">Final Attempts</div></div>
+        <div class="stat-box"><div class="value" id="badgeCount">0</div><div class="label">Badges</div></div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="btn btn-accent" onclick="showReview()">📚 Review Modules</button>
+        <button class="btn" onclick="showMockExam()">📝 Mock Exam</button>
+        <button class="btn btn-success" id="finalExamBtn" onclick="showFinalExam()" disabled>🎯 Final Exam</button>
+        <button class="btn btn-outline" onclick="showResults()">📊 My Results</button>
+        <button class="btn btn-outline" onclick="showExport()">📤 Export Data</button>
+        <button class="btn btn-danger" onclick="confirmLogout()">🚪 Logout</button>
+      </div>
+    </div>
+
+    <!-- REVIEW MODULES -->
+    <div id="reviewSection" class="hidden">
+      <div class="card">
+        <h2>📚 Review Modules</h2>
+        <p style="font-size:14px; color:var(--muted); margin-bottom:12px;">Click each module to mark it as reviewed. Complete all to unlock the mock exam.</p>
+        <div id="moduleList"></div>
+        <button class="btn btn-outline" onclick="hideReview()">← Back to Dashboard</button>
+      </div>
+    </div>
+
+    <!-- MOCK EXAM -->
+    <div id="mockExamSection" class="hidden">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>📝 Mock Exam</h2>
+          <span id="mockProgress" style="font-size:14px; color:var(--muted);"></span>
+        </div>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Immediate feedback shown after each answer. Score 43/60 to unlock the Final Exam.</p>
+        <div id="mockQuestionArea"></div>
+        <div id="mockFeedbackArea"></div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-outline" onclick="hideMockExam()">← Back to Dashboard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINAL EXAM -->
+    <div id="finalExamSection" class="hidden">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <h2>🎯 Final Exam</h2>
+          <span class="timer" id="finalTimer">90:00</span>
+        </div>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">No immediate feedback. Results shown after submission. Attempt <span id="attemptDisplay">1</span> of 3.</p>
+        <div id="finalQuestionArea"></div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-success" id="submitFinalBtn" onclick="submitFinalExam()">Submit Final Exam</button>
+          <button class="btn btn-outline" onclick="hideFinalExam()">← Back to Dashboard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="resultsSection" class="hidden">
+      <div class="card">
+        <h2>📊 My Results</h2>
+        <div id="resultsContent"></div>
+        <button class="btn btn-outline" onclick="hideResults()">← Back to Dashboard</button>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div id="exportSection" class="hidden">
+      <div class="card">
+        <h2>📤 Export My Data</h2>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Show this QR code or copy the code to your teacher.</p>
+        <div id="qrcode" style="text-align:center; margin:12px 0;"></div>
+        <textarea id="exportCode" readonly style="width:100%; height:120px; font-family:monospace; font-size:11px; padding:8px; border-radius:8px; border:2px solid #dfe6e9;"></textarea>
+        <div style="margin-top:12px;">
+          <button class="btn btn-accent" onclick="copyExportCode()">📋 Copy Code</button>
+          <button class="btn btn-outline" onclick="hideExport()">← Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEVELOPER CREDIT -->
+  <div class="developer-credit">
+    Developed by <strong>JEMUEL C. MARI, MAN, RN, LPT</strong><br>
+    Senior High School, Teacher II<br>
+    Iba High School • San Jose, Tarlac
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
+const STORAGE_KEY = 'ihs_science_remediation_v1';
+const SESSION_KEY = 'ihs_current_session';
+
+function getStore() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { students: {} }; }
+  catch(e) { return { students: {} }; }
+}
+function saveStore(store) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+}
+function getSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+  catch(e) { return null; }
+}
+function setSession(s) {
+  if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+  else localStorage.removeItem(SESSION_KEY);
+}
+
+/* ============================================================
+   QUESTION BANK (IN TOTO FROM PROVIDED EXAMS)
+   ============================================================ */
+const GEN_SCI_QUESTIONS = [
+  {q:"Which property of sound refers to how high or low a sound is?",opts:["Amplitude","Pitch","Echo","Frequency"],ans:1,exp:"Pitch refers to how high or low a sound is; it is determined by frequency."},
+  {q:"What happens when light bends as it passes between different media?",opts:["Reflection","Diffusion","Absorption","Refraction"],ans:3,exp:"Refraction is the bending of light as it passes between different media."},
+  {q:"Which technology uses sound waves to locate objects underwater?",opts:["Radar","GPS","SONAR","Projector"],ans:2,exp:"SONAR uses sound waves to locate objects underwater."},
+  {q:"Why can light travel through space while sound cannot?",opts:["Light is faster than sound.","Sound needs a material medium.","Sound has lower frequency.","Light has greater amplitude."],ans:1,exp:"Sound needs a material medium; light does not."},
+  {q:"What happens when the amplitude of a sound wave increases?",opts:["The pitch becomes higher.","The sound becomes louder.","The wavelength becomes shorter.","The frequency becomes lower."],ans:1,exp:"Increasing amplitude makes sound louder."},
+  {q:"Why are fiber optic cables useful for communication?",opts:["They use light to transmit data.","They carry sound signals.","They increase electrical current.","They depend on reflected sound."],ans:0,exp:"Fiber optic cables use light to transmit data."},
+  {q:"How does SONAR determine the distance of an underwater object?",opts:["It measures light intensity.","It compares sound frequencies.","It records the returning echo.","It detects changes in water color."],ans:2,exp:"SONAR determines distance by recording the returning echo."},
+  {q:"A school auditorium uses two speakers. Students near the stage report that the sound is painfully loud, while those at the back struggle to hear the speaker. Which change would best improve communication without simply increasing volume?",opts:["Add speakers across different seating areas.","Rearrange the seats farther from the stage.","Lower the pitch of the speaker's voice.","Remove acoustic panels around the room."],ans:0,exp:"Adding speakers across seating areas improves distribution without just increasing volume."},
+  {q:"A submarine crew needs to locate a large object hidden beneath dark seawater. Visibility is poor, but the crew must estimate the object's distance accurately. Which system would best meet the need?",opts:["GPS, because satellites provide location data.","SONAR, because returning echoes indicate underwater distance.","Radar, because radio waves detect distant targets.","Fiber optics, because light signals travel through cables."],ans:1,exp:"SONAR is best for underwater distance detection."},
+  {q:"A patient undergoes a medical examination in which sound waves are sent into the body and returning signals are used to produce an internal image. Which property of sound makes this procedure possible?",opts:["Sound moves continuously without a material medium.","Sound produces visible images inside body tissues.","Sound reflects from structures inside the body.","Sound maintains the same speed through all tissues."],ans:2,exp:"Sound reflects from internal body structures, allowing imaging."},
+  {q:"A telecommunications company is replacing an old communication line. The new system must transmit information over a long distance with high speed and relatively low signal loss. Which option should engineers prioritize?",opts:["Megaphones for broadcasting messages across large areas.","Microphones for capturing clearer spoken communication.","Fiber optics for transmitting data across long distances.","Loudspeakers for extending audio across public spaces."],ans:2,exp:"Fiber optics transmit data over long distances with high speed and low signal loss."},
+  {q:"A coastal research team uses radar to track an aircraft and SONAR to locate an object below the sea surface. A student says both devices should use the same type of wave because both determine distance. Which analysis best evaluates the student's claim?",opts:["The claim is correct because both systems use reflected waves.","The claim is incorrect because radar uses radio waves, while SONAR uses sound waves.","The claim is correct because both systems measure distance.","The claim is incorrect because both systems operate underwater."],ans:1,exp:"Radar uses radio waves; SONAR uses sound waves."},
+  {q:"A recording studio notices that performers can hear the sound clearly near the speakers but experience confusing echoes elsewhere in the room. Engineers inspect the walls and find several hard, reflective surfaces. Which conclusion best explains the problem?",opts:["Low frequency is reducing the clarity of spoken audio.","Excessive reflection is interfering with the original sound.","High frequency is preventing sound from reaching listeners.","Weak amplitude is reducing the strength of recorded audio."],ans:1,exp:"Excessive reflection from hard surfaces causes confusing echoes."},
+  {q:"A city is choosing a communication system for emergency services. Proposal A uses long-distance fiber optic connections, while Proposal B relies mainly on amplified loudspeakers. The committee wants rapid information transfer as well as broad public communication. Which evaluation is most reasonable?",opts:["Choose Proposal A because fiber optics support rapid data transmission.","Choose Proposal B because louder sounds reach more people.","Reject both proposals because waves cannot carry information.","Choose Proposal B because sound systems need no cables."],ans:0,exp:"Fiber optics support rapid data transmission."},
+  {q:"Your school plans a science exhibit showing how wave properties support modern technology. The exhibit must demonstrate communication, navigation, and safe technology use using concepts from the lesson. Which design would best meet all three goals?",opts:["A mirror display, speaker station, and flashlight activity.","A fiber optic model, SONAR display, and safety station.","An LED display, music booth, and headphone station.","A hologram display, projector station, and laser activity."],ans:1,exp:"Fiber optic model, SONAR display, and safety station cover all three goals."},
+  {q:"What does LED stand for?",opts:["Light Energy Device","Low Emission Diode","Light-Emitting Diode","Luminous Electronic Display"],ans:2,exp:"LED stands for Light-Emitting Diode."},
+  {q:"Which innovation is designed to reduce unwanted noise inside a room?",opts:["Soundproofing","Hologram","Sound amplifier","LED lighting"],ans:0,exp:"Soundproofing reduces unwanted noise."},
+  {q:"Which innovation produces a concentrated beam of light?",opts:["Hologram","Laser","Sound amplifier","Soundproofing"],ans:1,exp:"A laser produces a concentrated beam of light."},
+  {q:"Why are LEDs considered an energy-efficient lighting technology?",opts:["They produce sound with less energy and less heat.","They reflect light with less energy and less heat.","They produce light with less energy and less heat.","They transmit data with less energy and less heat."],ans:2,exp:"LEDs produce light with less energy and less heat."},
+  {q:"What is the main purpose of a sound amplifier?",opts:["To reduce unwanted sound inside a room.","To increase the loudness of an audio signal.","To convert sound into a visible image.","To produce concentrated beams of light."],ans:1,exp:"Sound amplifiers increase loudness."},
+  {q:"Why is soundproofing commonly used in recording studios and cinemas?",opts:["It increases the pitch of sounds inside the room.","It produces brighter lighting for audiences inside.","It creates three-dimensional images for viewers.","It reduces unwanted noise and improves sound quality."],ans:3,exp:"Soundproofing reduces unwanted noise and improves sound quality."},
+  {q:"What makes holograms useful in entertainment and visual displays?",opts:["They reduce unwanted sounds around an audience.","They create three-dimensional images using light.","They produce louder audio for large audiences.","They produce concentrated beams for precise cutting."],ans:1,exp:"Holograms create 3D images using light."},
+  {q:"A small recording studio is receiving complaints that traffic noise can be heard in its recordings. The owner wants to improve audio quality without changing the microphones. Which innovation should be prioritized?",opts:["Add soundproofing materials to the studio walls.","Install LED panels around the recording room.","Replace the microphones with louder speakers.","Install hologram displays near the recording booth."],ans:0,exp:"Soundproofing materials reduce traffic noise."},
+  {q:"A school auditorium will host a program where a speaker must be heard clearly by students seated at the back. Which innovation would best address the problem?",opts:["A hologram display for improved visual presentation","An LED system for brighter stage illumination","A laser system for precise visual effects","A sound amplifier for clearer and louder audio"],ans:3,exp:"A sound amplifier makes audio clearer and louder."},
+  {q:"A community center wants to replace old lighting that consumes more electricity and produces considerable heat. Which innovation would best meet the goal?",opts:["Install hologram displays in the main hall.","Install sound amplifiers throughout the building.","Replace the lamps with energy-efficient LED units.","Replace the lighting with focused laser equipment."],ans:2,exp:"LED units are energy-efficient and produce less heat."},
+  {q:"A museum wants visitors to see a realistic three-dimensional representation of an historical artifact without displaying the original object. Which innovation would best fit the project?",opts:["Soundproofing materials around the exhibit","A sound amplifier for the exhibition area","LED bulbs for general room illumination","A hologram system for visual presentation"],ans:3,exp:"A hologram system creates 3D visual presentations."},
+  {q:"A theater is planning two upgrades. The first problem is excessive background noise during performances. The second is that performers' voices are difficult to hear in distant seats. Which combination best addresses both problems?",opts:["LED lighting for noise control and holograms for clearer audio","Lasers for noise control and LEDs for clearer audio","Holograms for noise control and soundproofing for clearer audio","Soundproofing for noise control and amplification for clearer audio"],ans:3,exp:"Soundproofing + amplification addresses both problems."},
+  {q:"A technology committee compares four proposals for a community hall. Proposal A uses LED lighting, Proposal B uses soundproofing, Proposal C uses an amplifier, and Proposal D uses a laser display. The hall already has adequate lighting but suffers from distracting outside noise. Which proposal directly addresses the identified problem?",opts:["Proposal A because LED systems provide efficient illumination.","Proposal B because soundproofing reduces unwanted noise.","Proposal C because amplifiers increase the loudness of sound.","Proposal D because lasers provide concentrated light displays."],ans:1,exp:"Soundproofing directly reduces unwanted noise."},
+  {q:"A school is deciding whether to install a laser display for an upcoming event. The proposed system will be operated near students and audience members. Which decision is most responsible based on the lesson?",opts:["Approve it immediately because lasers provide powerful visual effects.","Reject every laser system because all laser applications are unsafe.","Replace it automatically with speakers because sound technology is safer.","Approve it after ensuring proper controls and avoiding direct eye exposure."],ans:3,exp:"Approve after ensuring proper controls and avoiding direct eye exposure."},
+  {q:"A school wants to design a multipurpose technology room that supports presentations, recording, and public events. Which combination would provide the most appropriate set of innovations?",opts:["LEDs, soundproofing, and a sound amplifier","Holograms, lasers, and soundproofing","LEDs, holograms, and a laser display","Sound amplifiers, lasers, and holograms"],ans:0,exp:"LEDs, soundproofing, and a sound amplifier cover all needs."},
+  {q:"Which scientist is identified in the lesson as a French chemist and microbiologist?",opts:["Louis Manzano","Edward Jenner","Louis Pasteur","Luis Pastor"],ans:2,exp:"Louis Pasteur was a French chemist and microbiologist."},
+  {q:"Which idea states that microorganisms can cause infectious diseases?",opts:["Pasteur's Theory","Germ Theory","Disease Theory","Spontaneous Generation Theory"],ans:1,exp:"Germ Theory states microorganisms can cause infectious diseases."},
+  {q:"Which process introduced by Pasteur helps make milk safer to consume?",opts:["Fermentation","Sterilization","Pasteurization","Vaccination"],ans:2,exp:"Pasteurization makes milk safer to consume."},
+  {q:"Why was Pasteur's work important in changing ideas about disease?",opts:["It linked disease with environmental changes.","It linked disease with chemical imbalances.","It linked disease with inherited traits.","It linked disease with microorganisms."],ans:3,exp:"Pasteur's work linked disease with microorganisms."},
+  {q:"How did Pasteur connect chemistry with the study of microorganisms?",opts:["He measured bodily changes during infectious illnesses.","He classified diseases by studying symptoms alone.","He studied chemical changes caused by microbes.","He studied treatments without examining living microbes."],ans:2,exp:"Pasteur studied chemical changes caused by microbes."},
+  {q:"Why is pasteurization considered a modern application of Pasteur's work?",opts:["It removes every harmful microorganism from milk completely.","It changes milk into chemicals that resist spoilage.","It prevents microorganisms from entering milk during storage","It reduces harmful microorganisms in selected foods safely."],ans:3,exp:"Pasteurization reduces harmful microorganisms safely."},
+  {q:"Why are vaccines included among applications connected to Pasteur's scientific contributions?",opts:["They directly destroy harmful microbes within body tissues.","They replace sanitation during infectious disease outbreaks completely.","They help the body develop protection against disease.","They prevent all illnesses caused by harmful microorganisms."],ans:2,exp:"Vaccines help the body develop protection against disease."},
+  {q:"A community milk supplier finds that untreated milk spoils quickly, while properly processed milk remains safer for consumption. Which practice best applies Pasteur's work?",opts:["Store milk at room temperature before delivery daily.","Apply controlled heating before distributing the milk safely.","Add flavoring agents before selling the milk daily.","Increase sugar content to slow microbial growth noticeably."],ans:1,exp:"Controlled heating (pasteurization) applies Pasteur's work."},
+  {q:"A hospital reviews its infection-control procedures after several patients develop preventable infections. Which action best applies the lesson on disease prevention?",opts:["Reduce cleaning to limit chemical exposure risks.","Replace disinfectants with untreated water during procedures.","Focus research only on symptoms after infections.","Increase sanitation and sterilization of medical equipment."],ans:3,exp:"Increasing sanitation and sterilization best applies disease prevention."},
+  {q:"A student encounters a social media post claiming that diseases are mainly caused by \"bad air.\" Which response best applies the lesson?",opts:["Reject it because microorganisms can cause infectious diseases.","Accept it because environmental conditions influence health greatly.","Reject it because diseases result from chemical changes.","Accept it because microorganisms cannot survive in air."],ans:0,exp:"Reject it because microorganisms cause infectious diseases."},
+  {q:"The team wants to explain why milk processing became an important public-health practice. Which explanation best fits the evidence they gathered?",opts:["Controlled processing can remove every substance from milk.","Controlled processing can prevent all chemical reactions in milk.","Controlled processing can stop microorganisms from existing permanently.","Controlled processing can reduce harmful microorganisms and improve safety."],ans:3,exp:"Controlled processing reduces harmful microorganisms and improves safety."},
+  {q:"The team compares two explanations for milk spoilage. Explanation A states that spoilage results from microorganisms. Explanation B states that spoilage occurs without biological causes. Which conclusion best follows from Pasteur's research?",opts:["Explanation B is stronger because food changes involve chemistry.","Both explanations receive equal support from Pasteur's research.","Neither explanation is useful for investigating food spoilage.","Explanation A is stronger because microbes affect food."],ans:3,exp:"Explanation A is stronger because Pasteur showed microbes affect food."},
+  {q:"The team notices that modern disease prevention combines sanitation, vaccination, food safety, and scientific research. What broader idea can they infer from these connections?",opts:["Disease prevention depends only on treatment after infection.","Chemistry and biology should remain separate in research.","Scientific discoveries become useful through connected scientific fields.","Public health improves when all microbes are eliminated."],ans:2,exp:"Scientific discoveries become useful through connected fields."},
+  {q:"One team member argues that studying Pasteur's historical work is unnecessary because modern medicine already has advanced technologies. Which response is best supported by the lesson?",opts:["History cannot directly guide modern medical practices today.","The claim is incomplete because medicine uses scientific foundations.","Modern medicine no longer needs historical scientific foundations.","The claim is complete because technologies replace discoveries."],ans:1,exp:"The claim is incomplete because medicine uses scientific foundations."},
+  {q:"The team must design a short public-health report connecting Pasteur's work to current community practices. Which structure would best satisfy the task?",opts:["Present Pasteur's discoveries, modern applications, and public-health importance.","Present Pasteur's biography, unrelated chemistry topics, and modern inventions.","Present disease symptoms, personal opinions, and unrelated laboratory procedures.","Present historical dates, product advertisements, and community health statistics."],ans:0,exp:"Present Pasteur's discoveries, modern applications, and public-health importance."},
+  {q:"Which substance in toothpaste is identified as an active ingredient?",opts:["Flavoring agents","Sodium fluoride","Coloring agents","Glycerin compounds"],ans:1,exp:"Sodium fluoride is the active ingredient in toothpaste."},
+  {q:"Which substance in bleach is identified in the lesson as a germ-killing ingredient?",opts:["Sodium bicarbonate","Calcium carbonate","Sodium hypochlorite","Sodium laureth sulfate"],ans:2,exp:"Sodium hypochlorite is the germ-killing ingredient in bleach."},
+  {q:"Why do household and personal care products contain several different ingredients?",opts:["Each ingredient increases the product's color.","Each ingredient replaces the main active substance.","Each ingredient performs a different function.","Each ingredient makes the product chemically stronger"],ans:2,exp:"Each ingredient performs a different function."},
+  {q:"Why is it useful to distinguish active ingredients from inactive ingredients?",opts:["It shows which ingredients determine product color.","It determines which products have the lowest price.","It identifies which ingredients provide the main function.","It reveals which ingredients are naturally occurring."],ans:2,exp:"Distinguishing active from inactive identifies main function."},
+  {q:"A student examines a toothpaste label containing sodium fluoride, flavoring agents, and coloring agents. The student needs to construct a table showing each substance and its function. Which entry should be recorded for sodium fluoride?",opts:["Prevents cavities","Improves flavor","Adds color","Maintains moisture"],ans:0,exp:"Sodium fluoride prevents cavities."},
+  {q:"A learner compares two shampoo labels. Both products contain sodium laureth sulfate, while only one contains a fragrance ingredient. The learner is preparing a comparison table. Which interpretation is most appropriate?",opts:["The shared ingredient provides the products' fragrance.","The unique ingredient provides the main cleaning function.","The unique ingredient determines the products' chemical formula.","The shared ingredient serves the main cleaning function."],ans:3,exp:"The shared ingredient (sodium laureth sulfate) serves the main cleaning function."},
+  {q:"A student creates the following label table: Product|Substance|Function — Toothpaste|Sodium fluoride|Prevents cavities; Shampoo|Sodium laureth sulfate|Removes dirt and oil; Soap|Glycerin|Kills germs; Bleach|Sodium hypochlorite|Kills germs. Which entry should the student revise?",opts:["Soap entry, because glycerin helps maintain skin moisture.","Toothpaste entry, because fluoride is inactive.","Shampoo entry, because sulfate improves product color.","Bleach entry, because hypochlorite improves product fragrance."],ans:0,exp:"The soap entry should be revised — glycerin maintains skin moisture."},
+  {q:"A consumer is comparing two toothpaste labels. Both contain sodium fluoride, but the products differ in flavor, color, and texture. Which conclusion is most reasonable?",opts:["The active ingredient makes all product differences unimportant.","The inactive ingredients may affect user experience and product qualities.","The product with more ingredients must provide better cavity protection.","The products have identical functions in every respect."],ans:1,exp:"Inactive ingredients affect user experience and product qualities."},
+  {q:"A science class must design a table that allows consumers to compare household and personal care products using actual labels. Which table structure would best support the task?",opts:["Product | Package | Popularity | Store Location","Product | Substance | Ingredient Type | Function","Product | Brand | Color | Advertised Price","Product | Size | Flavor | Consumer Rating"],ans:1,exp:"Product | Substance | Ingredient Type | Function is the best structure."},
+  {q:"Which government agency is identified in the lesson as promoting environmental protection?",opts:["FDA","DTI","DENR","DepEd"],ans:2,exp:"DENR promotes environmental protection."},
+  {q:"Why can a household chemical become harmful even when it is useful?",opts:["Its safety depends on how it is used and handled.","Its function changes whenever people read its label.","Its benefits disappear whenever consumers store it properly.","Its chemical composition becomes harmful in every situation."],ans:0,exp:"Safety depends on how it is used and handled."},
+  {q:"Why can improper disposal of household chemicals affect aquatic organisms?",opts:["Chemical waste can enter waterways and cause pollution.","Chemical waste makes freshwater organisms reproduce faster.","Chemical waste improves water quality after entering rivers.","Chemical waste removes harmful substances from aquatic habitats."],ans:0,exp:"Chemical waste can enter waterways and cause pollution."},
+  {q:"A family has leftover cleaning chemicals after moving to a new house. The products contain safety warnings and disposal instructions on their labels. Which action best applies the lesson on responsible chemical use?",opts:["Follow the disposal instructions stated on the labels.","Mix the products together before throwing them away.","Transfer the chemicals into unmarked bottles for storage.","Pour the leftovers into a nearby drainage canal."],ans:0,exp:"Follow the disposal instructions on the labels."},
+  {q:"A disinfectant is highly effective against harmful microorganisms, but repeated misuse may cause skin irritation and improper disposal may pollute waterways. Which analysis best explains the situation?",opts:["The product has benefits, but risks depend on use and disposal.","The product is harmful because chemical products have no benefits.","The product is safe because disinfectants are always harmless.","The product should be banned because it can cause irritation."],ans:0,exp:"Benefits exist, but risks depend on use and disposal."},
+  {q:"A consumer is choosing between two household products. Product A is cheaper and effective but provides limited safety information. Product B costs more but includes clear instructions, warnings, and disposal guidance. Which choice is most consistent with responsible consumer behavior?",opts:["Choose Product B because safety information supports informed use.","Choose Product A because lower price should be prioritized.","Choose Product A because effectiveness matters more than safety.","Choose Product B because expensive products are always safer."],ans:0,exp:"Choose Product B because safety information supports informed use."}
+];
+
+const PHYS_SCI_QUESTIONS = [
+  {q:"A company chooses copper for power lines in a community because copper has high electrical conductivity. Which property makes copper suitable for this purpose?",opts:["High conductivity","High transparency","High solubility","High brittleness"],ans:0,exp:"Copper has high electrical conductivity."},
+  {q:"A student notices that glass windows allow light to pass through while still protecting people from wind and rain. Why is glass used for windows?",opts:["It is magnetic.","It is transparent and rigid.","It is absorbent.","It is biodegradable."],ans:1,exp:"Glass is transparent and rigid."},
+  {q:"During a product-design project, students must select a material for reusable water bottles. Why is stainless steel often preferred?",opts:["It dissolves easily in water.","It has low density only.","It resists corrosion and is durable.","It is transparent."],ans:2,exp:"Stainless steel resists corrosion and is durable."},
+  {q:"A chef wants cookware that transfers heat efficiently. Which property should the material possess?",opts:["Elasticity","Transparency","Solubility","Thermal conductivity"],ans:3,exp:"Cookware needs high thermal conductivity."},
+  {q:"A bicycle company compares two frame materials. One is stronger and lasts longer but costs more. Why might engineers still recommend it?",opts:["It increases safety and durability.","It is easier to recycle.","It is available in more colors.","It weighs slightly more."],ans:0,exp:"Stronger material increases safety and durability."},
+  {q:"Which material is most appropriate for industrial safety helmets?",opts:["Paperboard","Soft foam only","Brittle glass","Impact-resistant plastic"],ans:3,exp:"Impact-resistant plastic is appropriate for helmets."},
+  {q:"Scientists explain that a material's properties depend largely on its internal arrangement of atoms. This arrangement is called its:",opts:["Atomic number","Molecular weight","Atomic structure","Chemical formula"],ans:2,exp:"Atomic structure is the internal arrangement of atoms."},
+  {q:"Diamond and graphite are both made of carbon. Why is diamond much harder?",opts:["Diamond has a different atomic structure.","Diamond contains metals.","Diamond contains water.","Diamond is heavier."],ans:0,exp:"Diamond has a different atomic structure than graphite."},
+  {q:"Graphite is used in electrodes because it can conduct electricity. Which feature of its structure explains this property?",opts:["Trapped air spaces","Immobile electrons","Layers with mobile electrons","Large crystal size"],ans:2,exp:"Graphite has layers with mobile electrons."},
+  {q:"A materials engineer develops a new alloy by changing the arrangement of atoms. Why could this alter the alloy's properties?",opts:["The color changes automatically.","Atomic structure affects material behavior.","Density becomes zero.","Cost always decreases."],ans:1,exp:"Atomic structure affects material behavior."},
+  {q:"Modern aircraft use composite materials. Scientists examine how fibers are arranged inside the material. Why?",opts:["Structure affects strength and performance.","Structure affects appearance only.","Structure determines age only.","Structure changes ownership."],ans:0,exp:"Structure affects strength and performance."},
+  {q:"Two materials contain the same atoms but have different structures. Which statement is most accurate?",opts:["They must have identical properties.","They must have identical densities.","They can exhibit different properties.","They can never be solids."],ans:2,exp:"Same atoms with different structures can have different properties."},
+  {q:"Why is silicon widely used in computer chips?",opts:["It is transparent.","It is a semiconductor.","It is waterproof.","It is biodegradable."],ans:1,exp:"Silicon is a semiconductor."},
+  {q:"Reinforced concrete is used in bridges because it combines compressive and tensile strength. What benefit does this provide?",opts:["Better structural stability","Lower thermal conductivity","Greater transparency","Reduced density"],ans:0,exp:"Reinforced concrete provides better structural stability."},
+  {q:"A technician covers electrical wires with plastic. What property of plastic makes it suitable?",opts:["It conducts electricity efficiently.","It absorbs moisture quickly.","It acts as an electrical insulator.","It melts at room temperature."],ans:2,exp:"Plastic acts as an electrical insulator."},
+  {q:"A smartphone manufacturer selects tempered glass for screens. Why?",opts:["It is biodegradable.","It is magnetic.","It is inexpensive only.","It is transparent and resistant to impact."],ans:3,exp:"Tempered glass is transparent and impact-resistant."},
+  {q:"An engineer must choose wiring for a new hospital. Which material property is most important?",opts:["Odor","Color","High electrical conductivity","Texture"],ans:2,exp:"High electrical conductivity is most important for wiring."},
+  {q:"In an earthquake-prone city, which material property should builders prioritize?",opts:["High brittleness","High transparency","High flexibility and strength","High solubility"],ans:2,exp:"Flexibility and strength are important in earthquake-prone areas."},
+  {q:"Which biological macromolecule stores genetic information?",opts:["Lipid","Protein","Nucleic acid","Carbohydrate"],ans:2,exp:"Nucleic acids store genetic information."},
+  {q:"Why do proteins perform many different functions in living organisms?",opts:["Their amino acid sequence determines their structure.","All proteins have the same shape.","Proteins contain no carbon.","Proteins exist only in animals."],ans:0,exp:"Amino acid sequence determines protein structure and function."},
+  {q:"Athletes often consume foods rich in carbohydrates before competitions. Why?",opts:["Carbohydrates provide quick energy.","Carbohydrates store genetic information.","Carbohydrates form cell membranes only.","Carbohydrates function as enzymes."],ans:0,exp:"Carbohydrates provide quick energy."},
+  {q:"Enzymes speed up reactions in the body. Which characteristic allows them to perform this role?",opts:["Their color","Their specific shape","Their density","Their state of matter"],ans:1,exp:"Enzymes have a specific shape that allows them to function."},
+  {q:"A mutation changes the structure of an enzyme. What is the most likely consequence?",opts:["The enzyme's function changes.","The enzyme becomes a lipid.","The enzyme disappears instantly.","The enzyme becomes DNA."],ans:0,exp:"A mutation that changes enzyme structure changes its function."},
+  {q:"Medical researchers study how DNA stores information. Which property of nucleic acids makes this possible?",opts:["They contain large amounts of oil.","They have insulating properties.","They absorb sunlight efficiently.","Their sequence of components carries information."],ans:3,exp:"The sequence of components in nucleic acids carries information."},
+  {q:"According to collision theory, reactions occur when particles:",opts:["stop moving","collide effectively","decrease in size","become heavier"],ans:1,exp:"Collision theory states reactions occur when particles collide effectively."},
+  {q:"Food spoils faster in warm conditions. Which explanation best supports collision theory?",opts:["Higher temperatures increase effective collisions.","Higher temperatures reduce particle movement.","Higher temperatures remove reactants.","Higher temperatures eliminate kinetic energy."],ans:0,exp:"Higher temperatures increase effective collisions."},
+  {q:"Why does powdered sugar dissolve faster than sugar cubes?",opts:["It has a different chemical formula.","It contains less matter.","It provides a larger surface area.","It reacts with water chemically."],ans:2,exp:"Powdered sugar has a larger surface area."},
+  {q:"A chemist wants a reaction to occur faster. Which change would most likely increase reaction rate?",opts:["Decrease concentration","Reduce particle collisions","Lower temperature","Increase concentration"],ans:3,exp:"Increasing concentration increases reaction rate."},
+  {q:"An experiment compares reactions at 25°C and 60°C. Why is the reaction at 60°C faster?",opts:["Reactants become solids.","More particles are present.","Particles move faster and collide more often.","Energy is removed from the system."],ans:2,exp:"At 60°C, particles move faster and collide more often."},
+  {q:"A tablet medicine is crushed before being mixed with water. Why does this increase the reaction rate?",opts:["Greater surface area increases collisions.","Particle mass increases.","Density becomes higher.","Temperature automatically rises."],ans:0,exp:"Greater surface area increases collisions."},
+  {q:"What is a catalyst?",opts:["A substance that speeds up a reaction without being consumed.","A substance that stops all reactions.","A reactant that is completely used up.","A product formed during reaction."],ans:0,exp:"A catalyst speeds up a reaction without being consumed."},
+  {q:"Vehicle catalytic converters help reduce pollution because catalysts:",opts:["increase fuel consumption","speed up specific chemical reactions","block all chemical changes","increase waste production"],ans:1,exp:"Catalytic converters speed up specific chemical reactions."},
+  {q:"Why are enzymes considered biological catalysts?",opts:["They lower temperature.","They add reactants.","They increase the rate of reactions in organisms.","They remove products."],ans:2,exp:"Enzymes increase the rate of reactions in organisms."},
+  {q:"In the reaction N₂ + 3H₂ → 2NH₃, a chemist wants to determine the amount of ammonia that can be produced from a given amount of reactants. Which information should be used first to solve the problem?",opts:["The mole ratio in the balanced chemical equation","The color of the reactants","The size of the reaction vessel","The location of the laboratory"],ans:0,exp:"The mole ratio in the balanced equation is used first."},
+  {q:"Consider the reaction: 2H₂ + O₂ → 2H₂O. A student mixes 8 moles of H₂ with 3 moles of O₂. After the reaction is complete, some hydrogen remains unreacted. Which substance is the limiting reactant?",opts:["Hydrogen (H₂)","Oxygen (O₂)","Water (H₂O)","Both reactants are limiting"],ans:1,exp:"Oxygen (O₂) is the limiting reactant."},
+  {q:"Hydrogen and oxygen react according to the equation: 2H₂ + O₂ → 2H₂O. If 6 moles of hydrogen gas react completely, how many moles of oxygen gas are required?",opts:["1 mole","2 moles","3 moles","6 moles"],ans:2,exp:"3 moles of O₂ are required."},
+  {q:"A chemist reacts 4 moles of magnesium with excess oxygen using the equation: 2Mg + O₂ → 2MgO. Before conducting the experiment, she calculates that 4 moles of MgO should be produced. This calculated amount is important because it represents the:",opts:["expected theoretical yield","actual yield obtained","limiting reactant left over","reaction rate"],ans:0,exp:"The calculated amount is the theoretical yield."},
+  {q:"A factory uses the reaction N₂ + 3H₂ → 2NH₃. Each batch contains 10 moles of N₂ and 20 moles of H₂. Engineers determine which reactant will be consumed first before production begins. Why is this step important?",opts:["It determines the color of ammonia produced.","It predicts the maximum amount of ammonia that can be formed.","It eliminates the need for balancing equations.","It guarantees that no reactants are wasted."],ans:1,exp:"Identifying the limiting reactant predicts maximum product."},
+  {q:"A student performs the reaction 2Al + 3Cl₂ → 2AlCl₃. After the reaction, chlorine gas is still present in the container while all aluminum has been consumed. What conclusion can be made?",opts:["Chlorine controlled the amount of product formed.","The reaction was unsuccessful.","Aluminum acted as the limiting reactant.","No aluminum chloride was produced."],ans:2,exp:"Aluminum acted as the limiting reactant."},
+  {q:"In an experiment, the theoretical yield of sodium chloride is 25g, while the actual yield obtained is 20g. What is the percent yield?",opts:["75%","80%","100%","125%"],ans:1,exp:"(20 ÷ 25) × 100% = 80%."},
+  {q:"A student calculated that a reaction should produce 40g of product. After performing the experiment, exactly 40g was obtained. What is the percent yield?",opts:["100%","80%","50%","40%"],ans:0,exp:"(40 ÷ 40) × 100% = 100%."},
+  {q:"A pharmaceutical company expects to produce 500g of a medicine but obtains only 425g after purification. What is the percent yield of the process?",opts:["85%","95%","100%","117.6%"],ans:0,exp:"(425 ÷ 500) × 100% = 85%."},
+  {q:"Two production methods for the same medicine were tested. Method A: Theoretical yield = 200g; Actual yield = 140g. Method B: Theoretical yield = 200g; Actual yield = 170g. Which method is more efficient?",opts:["Method A","Method B","Both are equal","Cannot be determined"],ans:1,exp:"Method B is more efficient because it has a higher percent yield."},
+  {q:"A reaction has a theoretical yield of 50g and an actual yield of 40g. What is the percent yield?",opts:["40%","50%","80%","125%"],ans:2,exp:"(40 ÷ 50) × 100% = 80%."},
+  {q:"A chemical company compares two manufacturing runs: Run 1: Theoretical yield = 1000g; Actual yield = 760g. Run 2: Theoretical yield = 1000g; Actual yield = 920g. Based on percent yield calculations, what can be concluded?",opts:["Run 1 is more efficient because it produced less waste.","Run 1 is more efficient because it used fewer reactants.","Both runs have the same efficiency.","Run 2 is more efficient because it has the higher percent yield."],ans:3,exp:"Run 2 is more efficient because it has the higher percent yield."},
+  {q:"Burning fuel in a vehicle is an example of a reaction that:",opts:["releases energy","absorbs energy only","stops molecular motion","removes all heat"],ans:0,exp:"Burning fuel releases energy (exothermic)."},
+  {q:"Which observation indicates an exothermic reaction?",opts:["The surroundings become cooler.","Heat is released to the surroundings.","Energy is absorbed from the environment.","Temperature remains unchanged."],ans:1,exp:"Heat is released to the surroundings in an exothermic reaction."},
+  {q:"Solar panels are widely used because they:",opts:["destroy energy","create matter","convert solar energy into usable energy","eliminate all waste"],ans:2,exp:"Solar panels convert solar energy into usable energy."},
+  {q:"Communities are investing in renewable energy sources. Which reason best supports this decision?",opts:["Renewable sources are always cheaper immediately.","Renewable sources require no maintenance.","Renewable sources provide sustainable energy supplies.","Renewable sources eliminate energy demand."],ans:2,exp:"Renewable sources provide sustainable energy supplies."},
+  {q:"A student compares gasoline and solar energy. Which factor should be considered when evaluating energy sources?",opts:["Environmental impact and efficiency","Brand popularity only","Packaging design only","Product color only"],ans:0,exp:"Environmental impact and efficiency should be considered."},
+  {q:"A city plans to expand renewable energy use. Which decision is most scientifically justified?",opts:["Select sources based only on appearance.","Ignore environmental data.","Select sources based on scientific data and environmental impact.","Choose the most expensive option."],ans:2,exp:"Select sources based on scientific data and environmental impact."},
+  {q:"Which cleaning product commonly contains sodium hypochlorite as an active ingredient?",opts:["Bleach","Shampoo","Toothpaste","Lotion"],ans:0,exp:"Bleach contains sodium hypochlorite."},
+  {q:"What is the primary function of surfactants in detergents?",opts:["Increase hardness of water.","Help remove grease and dirt.","Produce oxygen gas.","Increase acidity."],ans:1,exp:"Surfactants help remove grease and dirt."},
+  {q:"Why are active ingredients important in cleaning products?",opts:["They provide fragrance only.","They determine package design.","They perform the product's cleaning action.","They reduce product mass."],ans:2,exp:"Active ingredients perform the cleaning action."},
+  {q:"Which ingredient is commonly found in toothpaste to help prevent tooth decay?",opts:["Alcohol","Fluoride","Bleach","Acetone"],ans:1,exp:"Fluoride helps prevent tooth decay."},
+  {q:"Moisturizers are commonly included in lotions because they:",opts:["help retain skin moisture","increase electrical conductivity","remove metal stains","kill all microorganisms"],ans:0,exp:"Moisturizers help retain skin moisture."},
+  {q:"Consumers often read product labels before buying cosmetics. Why is this practice important?",opts:["Labels identify major ingredients and functions.","Labels determine product color.","Labels increase shelf life automatically.","Labels change product composition."],ans:0,exp:"Labels identify major ingredients and functions."},
+  {q:"Why should bleach and ammonia-based cleaners never be mixed?",opts:["The mixture becomes ineffective.","The mixture may produce harmful gases.","The mixture turns into water.","The mixture increases fragrance."],ans:1,exp:"Bleach and ammonia may produce harmful gases."},
+  {q:"A consumer evaluates a cosmetic product before purchase. Which action demonstrates responsible decision-making?",opts:["Choosing the product with the brightest package","Buying the cheapest item immediately","Checking safety instructions and ingredient information","Ignoring warning labels"],ans:2,exp:"Checking safety instructions and ingredient information."},
+  {q:"A community center stores cleaning agents near a heat source. What is the best recommendation?",opts:["Keep products away from heat and follow storage instructions.","Remove all labels from containers.","Store products in food containers.","Leave containers open for ventilation."],ans:0,exp:"Keep products away from heat and follow storage instructions."}
+];
+
+/* ============================================================
+   UTILITY FUNCTIONS
+   ============================================================ */
+function titleCase(str) {
+  return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function toast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+function showModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+function getProficiency(score) {
+  const pct = (score / 60) * 100;
+  if (pct >= 90) return { level: 'Outstanding', color: '#27ae60' };
+  if (pct >= 80) return { level: 'Very Satisfactory', color: '#2ecc71' };
+  if (pct >= 70) return { level: 'Satisfactory', color: '#f39c12' };
+  if (pct >= 60) return { level: 'Fairly Satisfactory', color: '#e67e22' };
+  return { level: 'Did Not Meet Expectations', color: '#e74c3c' };
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+document.getElementById('gradeLevel').addEventListener('change', function() {
+  const subj = document.getElementById('subject');
+  subj.innerHTML = '';
+  if (this.value === '11') {
+    subj.innerHTML = '<option value="General Science">General Science</option>';
+  } else if (this.value === '12') {
+    subj.innerHTML = '<option value="Physical Science">Physical Science</option>';
+  } else {
+    subj.innerHTML = '<option value="">-- Select Grade Level First --</option>';
+  }
+});
+
+function loadSectionDatalist() {
+  const store = getStore();
+  const sections = new Set();
+  Object.values(store.students).forEach(s => { if (s.section) sections.add(s.section); });
+  const dl = document.getElementById('sectionList');
+  dl.innerHTML = '';
+  sections.forEach(sec => {
+    const opt = document.createElement('option');
+    opt.value = sec;
+    dl.appendChild(opt);
+  });
+}
+loadSectionDatalist();
+
+function handleLogin() {
+  const firstName = titleCase(document.getElementById('firstName').value.trim());
+  const lastName = titleCase(document.getElementById('lastName').value.trim());
+  const studentId = document.getElementById('studentId').value.trim();
+  const gradeLevel = document.getElementById('gradeLevel').value;
+  const section = titleCase(document.getElementById('section').value.trim());
+  const term = document.getElementById('term').value;
+  const subject = document.getElementById('subject').value;
+  const initialScoreRaw = document.getElementById('initialScore').value;
+
+  if (!firstName || !lastName || !studentId || !gradeLevel || !section || !term || !subject || initialScoreRaw === '') {
+    toast('Please fill in all fields.');
+    return;
+  }
+  const initialScore = parseInt(initialScoreRaw, 10);
+  if (isNaN(initialScore) || initialScore < 0 || initialScore > 60) {
+    toast('Initial score must be a whole number between 0 and 60.');
+    return;
+  }
+
+  const store = getStore();
+  const key = `${studentId}_${term}_${subject}`;
+  let student = store.students[key];
+
+  if (student) {
+    showModal(`
+      <h3>Existing Record Found</h3>
+      <p style="margin:10px 0;">A record for <strong>${student.firstName} ${student.lastName}</strong> (${student.studentId}) already exists for ${subject}, Term ${term}.</p>
+      <button class="btn" onclick="resumeSession('${key}')">Resume Previous Session</button>
+      <button class="btn btn-outline" onclick="startFresh('${key}')">Start Fresh</button>
+      <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+    `);
+    return;
+  }
+
+  createStudent(key, { firstName, lastName, studentId, gradeLevel, section, term, subject, initialScore });
+}
+
+function createStudent(key, data) {
+  const store = getStore();
+  const classification = data.initialScore >= 43 ? 'ENRICHMENT' : 'REMEDIATION';
+  store.students[key] = {
+    ...data,
+    classification,
+    createdAt: new Date().toISOString(),
+    reviewedModules: [],
+    mockAttempts: [],
+    finalAttempts: [],
+    xp: 0,
+    badges: []
+  };
+  saveStore(store);
+  setSession({ key });
+  enterDashboard();
+}
+
+function resumeSession(key) {
+  setSession({ key });
+  closeModal();
+  enterDashboard();
+}
+
+function startFresh(key) {
+  const store = getStore();
+  if (store.students[key]) {
+    if (!confirm('This will erase previous progress for this student. Continue?')) return;
+    delete store.students[key];
+    saveStore(store);
+  }
+  closeModal();
+  const firstName = titleCase(document.getElementById('firstName').value.trim());
+  const lastName = titleCase(document.getElementById('lastName').value.trim());
+  const studentId = document.getElementById('studentId').value.trim();
+  const gradeLevel = document.getElementById('gradeLevel').value;
+  const section = titleCase(document.getElementById('section').value.trim());
+  const term = document.getElementById('term').value;
+  const subject = document.getElementById('subject').value;
+  const initialScore = parseInt(document.getElementById('initialScore').value, 10);
+  createStudent(key, { firstName, lastName, studentId, gradeLevel, section, term, subject, initialScore });
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+let currentSession = null;
+
+function enterDashboard() {
+  const sess = getSession();
+  if (!sess) { toast('Session expired. Please log in.'); return; }
+  const store = getStore();
+  currentSession = store.students[sess.key];
+  if (!currentSession) { toast('Student record not found.'); return; }
+
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('dashboardScreen').classList.remove('hidden');
+
+  document.getElementById('welcomeText').textContent = `Welcome, ${currentSession.firstName}!`;
+  document.getElementById('studentInfo').textContent = `${currentSession.studentId} • Grade ${currentSession.gradeLevel} • ${currentSession.section} • ${currentSession.subject} • Term ${currentSession.term}`;
+
+  const badge = document.getElementById('classificationBadge');
+  badge.textContent = currentSession.classification;
+  badge.className = 'badge ' + (currentSession.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment');
+
+  updateDashboardStats();
+}
+
+function updateDashboardStats() {
+  const s = currentSession;
+  document.getElementById('xpValue').textContent = s.xp || 0;
+  const bestMock = s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : null;
+  document.getElementById('mockBest').textContent = bestMock !== null ? `${bestMock}/60` : '—';
+  document.getElementById('finalAttempts').textContent = `${s.finalAttempts.length}/3`;
+  document.getElementById('badgeCount').textContent = (s.badges || []).length;
+
+  // Progress: review (0-50%), mock pass (50-75%), final (75-100%)
+  let progress = 0;
+  const totalModules = getModulesForSubject(s.subject).length;
+  progress += Math.min(50, (s.reviewedModules.length / totalModules) * 50);
+  if (bestMock !== null && bestMock >= 43) progress += 25;
+  if (s.finalAttempts.length > 0) progress += 25;
+  document.getElementById('progressFill').style.width = progress + '%';
+
+  // Final exam button logic
+  const finalBtn = document.getElementById('finalExamBtn');
+  if (s.classification === 'ENRICHMENT') {
+    finalBtn.disabled = true;
+    finalBtn.textContent = '🎯 Final Exam (Enrichment Only)';
+  } else if (bestMock === null || bestMock < 43) {
+    finalBtn.disabled = true;
+    finalBtn.textContent = '🎯 Final Exam (Pass Mock First)';
+  } else if (s.finalAttempts.length >= 3) {
+    finalBtn.disabled = true;
+    finalBtn.textContent = '🎯 Final Exam (3/3 Used)';
+  } else {
+    finalBtn.disabled = false;
+    finalBtn.textContent = `🎯 Final Exam (Attempt ${s.finalAttempts.length + 1}/3)`;
+  }
+
+  saveCurrentStudent();
+}
+
+function saveCurrentStudent() {
+  const sess = getSession();
+  if (!sess) return;
+  const store = getStore();
+  store.students[sess.key] = currentSession;
+  saveStore(store);
+}
+
+/* ============================================================
+   MODULES
+   ============================================================ */
+const GEN_SCI_MODULES = [
+  { id: 'gs1', title: 'Module 1: Sound and Light Waves', range: 'Questions 1–15' },
+  { id: 'gs2', title: 'Module 2: Modern Technology Innovations', range: 'Questions 16–30' },
+  { id: 'gs3', title: 'Module 3: Louis Pasteur and Disease Prevention', range: 'Questions 31–45' },
+  { id: 'gs4', title: 'Module 4: Household and Personal Care Product Ingredients', range: 'Questions 46–54' },
+  { id: 'gs5', title: 'Module 5: Safe Use and Disposal of Household Chemicals', range: 'Questions 55–60' }
+];
+const PHYS_SCI_MODULES = [
+  { id: 'ps1', title: 'Module 1: Material Science', range: 'Questions 1–18' },
+  { id: 'ps2', title: 'Module 2: Biological Macromolecules', range: 'Questions 19–24' },
+  { id: 'ps3', title: 'Module 3: Collision Theory and Reaction Rates', range: 'Questions 25–30' },
+  { id: 'ps4', title: 'Module 4: Catalysts', range: 'Questions 31–33' },
+  { id: 'ps5', title: 'Module 5: Mole Calculations and Stoichiometry', range: 'Questions 34–39' },
+  { id: 'ps6', title: 'Module 6: Percent Yield', range: 'Questions 40–45' },
+  { id: 'ps7', title: 'Module 7: Energy and Renewable Sources', range: 'Questions 46–51' },
+  { id: 'ps8', title: 'Module 8: Household Product Ingredients and Safety', range: 'Questions 52–60' }
+];
+function getModulesForSubject(subject) {
+  return subject === 'General Science' ? GEN_SCI_MODULES : PHYS_SCI_MODULES;
+}
+
+function showReview() {
+  document.getElementById('reviewSection').classList.remove('hidden');
+  renderModules();
+}
+function hideReview() {
+  document.getElementById('reviewSection').classList.add('hidden');
+}
+function renderModules() {
+  const s = currentSession;
+  const modules = getModulesForSubject(s.subject);
+  const list = document.getElementById('moduleList');
+  list.innerHTML = '';
+  modules.forEach(m => {
+    const isReviewed = s.reviewedModules.includes(m.id);
+    const div = document.createElement('div');
+    div.className = 'module-card' + (isReviewed ? ' reviewed' : '');
+    div.innerHTML = `<h4>${isReviewed ? '✅ ' : ''}${m.title}</h4><p>${m.range}</p>`;
+    div.onclick = () => toggleModule(m.id);
+    list.appendChild(div);
+  });
+}
+function toggleModule(id) {
+  const s = currentSession;
+  const idx = s.reviewedModules.indexOf(id);
+  if (idx >= 0) {
+    s.reviewedModules.splice(idx, 1);
+  } else {
+    s.reviewedModules.push(id);
+    s.xp = (s.xp || 0) + 5;
+    toast('+5 XP for reviewing!');
+  }
+  saveCurrentStudent();
+  renderModules();
+  updateDashboardStats();
+}
+
+/* ============================================================
+   MOCK EXAM
+   ============================================================ */
+let mockState = null;
+
+function getQuestionsForSubject(subject) {
+  return subject === 'General Science' ? GEN_SCI_QUESTIONS : PHYS_SCI_QUESTIONS;
+}
+
+function showMockExam() {
+  const s = currentSession;
+  const modules = getModulesForSubject(s.subject);
+  if (s.reviewedModules.length < modules.length) {
+    if (!confirm('You have not marked all review modules as reviewed. Continue anyway?')) return;
+  }
+  startMockExam();
+}
+
+function startMockExam() {
+  const questions = getQuestionsForSubject(currentSession.subject);
+  mockState = {
+    questions: shuffleArray(questions.map((q, i) => {
+      const shuffledOpts = shuffleArray(q.opts.map((opt, idx) => ({ text: opt, isCorrect: idx === q.ans })));
+      return { ...q, shuffledOpts, correctIdx: shuffledOpts.findIndex(o => o.isCorrect) };
+    })),
+    current: 0,
+    score: 0,
+    answers: []
+  };
+  document.getElementById('mockExamSection').classList.remove('hidden');
+  renderMockQuestion();
+}
+
+function renderMockQuestion() {
+  const q = mockState.questions[mockState.current];
+  document.getElementById('mockProgress').textContent = `Question ${mockState.current + 1} of ${mockState.questions.length}`;
+  const area = document.getElementById('mockQuestionArea');
+  const feedback = document.getElementById('mockFeedbackArea');
+  feedback.innerHTML = '';
+  area.innerHTML = `
+    <div class="question-box">
+      <div class="question-text">${mockState.current + 1}. ${q.q}</div>
+      <div id="mockOptions">
+        ${q.shuffledOpts.map((o, i) => `<div class="option" onclick="answerMock(${i})">${String.fromCharCode(65 + i)}. ${o.text}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function answerMock(idx) {
+  const q = mockState.questions[mockState.current];
+  const opts = document.querySelectorAll('#mockOptions .option');
+  opts.forEach((el, i) => {
+    el.onclick = null;
+    if (i === q.correctIdx) el.classList.add('correct');
+    else if (i === idx) el.classList.add('wrong');
+  });
+  const isCorrect = idx === q.correctIdx;
+  if (isCorrect) {
+    mockState.score++;
+    currentSession.xp = (currentSession.xp || 0) + 5;
+  }
+  mockState.answers.push({ question: q.q, chosen: idx, correct: q.correctIdx, isCorrect });
+  saveCurrentStudent();
+
+  const fb = document.getElementById('mockFeedbackArea');
+  fb.innerHTML = `
+    <div class="feedback ${isCorrect ? 'correct' : 'wrong'}">
+      <strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect.'}</strong><br>
+      ${q.exp}
+    </div>
+    <button class="btn" onclick="nextMock()">${mockState.current + 1 < mockState.questions.length ? 'Next Question →' : 'Finish Mock Exam'}</button>
+  `;
+}
+
+function nextMock() {
+  mockState.current++;
+  if (mockState.current < mockState.questions.length) {
+    renderMockQuestion();
+  } else {
+    finishMockExam();
+  }
+}
+
+function finishMockExam() {
+  const s = currentSession;
+  const score = mockState.score;
+  s.mockAttempts.push({ score, date: new Date().toISOString() });
+
+  // Badges
+  if (score >= 43 && !s.badges.includes('mock_pass')) {
+    s.badges.push('mock_pass');
+    s.xp += 20;
+  }
+  saveCurrentStudent();
+
+  const best = Math.max(...s.mockAttempts.map(a => a.score));
+  document.getElementById('mockQuestionArea').innerHTML = `
+    <div class="question-box" style="text-align:center;">
+      <h3>Mock Exam Complete</h3>
+      <p style="font-size:24px; font-weight:700; color:${score >= 43 ? 'var(--success)' : 'var(--danger)'};">${score}/60</p>
+      <p>Best Mock Score: ${best}/60</p>
+      <p>${score >= 43 ? '🎉 You passed! Final Exam unlocked.' : 'Keep practicing! Score 43/60 to unlock the Final Exam.'}</p>
+    </div>
+  `;
+  document.getElementById('mockFeedbackArea').innerHTML = `
+    <button class="btn btn-accent" onclick="startMockExam()">Retake Mock Exam</button>
+    <button class="btn btn-outline" onclick="hideMockExam()">← Back to Dashboard</button>
+  `;
+  updateDashboardStats();
+}
+
+function hideMockExam() {
+  document.getElementById('mockExamSection').classList.add('hidden');
+}
+
+/* ============================================================
+   FINAL EXAM
+   ============================================================ */
+let finalState = null;
+let finalTimerInterval = null;
+
+function showFinalExam() {
+  const s = currentSession;
+  const best = s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : 0;
+  if (s.classification === 'ENRICHMENT') {
+    toast('Enrichment students cannot take the Final Exam.');
+    return;
+  }
+  if (best < 43) {
+    toast('You must score at least 43/60 in the Mock Exam first.');
+    return;
+  }
+  if (s.finalAttempts.length >= 3) {
+    toast('You have used all 3 attempts. Please see your teacher.');
+    return;
+  }
+  if (!confirm(`This is Final Exam Attempt ${s.finalAttempts.length + 1} of 3. You will have 90 minutes. Continue?`)) return;
+  startFinalExam();
+}
+
+function startFinalExam() {
+  const questions = getQuestionsForSubject(currentSession.subject);
+  finalState = {
+    questions: shuffleArray(questions.map(q => {
+      const shuffledOpts = shuffleArray(q.opts.map((opt, idx) => ({ text: opt, isCorrect: idx === q.ans })));
+      return { ...q, shuffledOpts, correctIdx: shuffledOpts.findIndex(o => o.isCorrect) };
+    })),
+    current: 0,
+    answers: new Array(60).fill(null),
+    timeLeft: 90 * 60
+  };
+  document.getElementById('finalExamSection').classList.remove('hidden');
+  document.getElementById('attemptDisplay').textContent = currentSession.finalAttempts.length + 1;
+  renderFinalQuestion();
+  startFinalTimer();
+}
+
+function startFinalTimer() {
+  if (finalTimerInterval) clearInterval(finalTimerInterval);
+  finalTimerInterval = setInterval(() => {
+    finalState.timeLeft--;
+    document.getElementById('finalTimer').textContent = formatTime(finalState.timeLeft);
+    if (finalState.timeLeft <= 0) {
+      clearInterval(finalTimerInterval);
+      toast('Time is up! Submitting your exam.');
+      submitFinalExam();
+    }
+  }, 1000);
+}
+
+function renderFinalQuestion() {
+  const q = finalState.questions[finalState.current];
+  const area = document.getElementById('finalQuestionArea');
+  area.innerHTML = `
+    <div class="question-box">
+      <div class="question-text">${finalState.current + 1}. ${q.q}</div>
+      <div id="finalOptions">
+        ${q.shuffledOpts.map((o, i) => `<div class="option ${finalState.answers[finalState.current] === i ? 'selected' : ''}" onclick="selectFinal(${i})">${String.fromCharCode(65 + i)}. ${o.text}</div>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:12px;">
+      <button class="btn btn-outline" onclick="prevFinal()" ${finalState.current === 0 ? 'disabled' : ''}>← Previous</button>
+      <button class="btn" onclick="nextFinal()" ${finalState.current === 59 ? 'disabled' : ''}>Next →</button>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:var(--muted);">Answered: ${finalState.answers.filter(a => a !== null).length} / 60</div>
+  `;
+}
+
+function selectFinal(idx) {
+  finalState.answers[finalState.current] = idx;
+  renderFinalQuestion();
+}
+function nextFinal() {
+  if (finalState.current < 59) { finalState.current++; renderFinalQuestion(); }
+}
+function prevFinal() {
+  if (finalState.current > 0) { finalState.current--; renderFinalQuestion(); }
+}
+
+function submitFinalExam() {
+  if (finalTimerInterval) clearInterval(finalTimerInterval);
+  let score = 0;
+  finalState.questions.forEach((q, i) => {
+    if (finalState.answers[i] === q.correctIdx) score++;
+  });
+  const s = currentSession;
+  s.finalAttempts.push({ score, date: new Date().toISOString() });
+  if (score >= 43 && !s.badges.includes('final_pass')) {
+    s.badges.push('final_pass');
+    s.xp += 50;
+  }
+  saveCurrentStudent();
+  document.getElementById('finalExamSection').classList.add('hidden');
+  showResults();
+  updateDashboardStats();
+}
+
+function hideFinalExam() {
+  if (confirm('If you leave now, your current attempt will be lost. Continue?')) {
+    if (finalTimerInterval) clearInterval(finalTimerInterval);
+    document.getElementById('finalExamSection').classList.add('hidden');
+  }
+}
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+function showResults() {
+  document.getElementById('resultsSection').classList.remove('hidden');
+  const s = currentSession;
+  const bestMock = s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : 0;
+  const finalBest = s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : null;
+  const finalLast = s.finalAttempts.length ? s.finalAttempts[s.finalAttempts.length - 1].score : null;
+  const proficiency = finalLast !== null ? getProficiency(finalLast) : null;
+
+  let html = `
+    <h3>${s.firstName} ${s.lastName}</h3>
+    <p style="font-size:13px; color:var(--muted);">${s.studentId} • Grade ${s.gradeLevel} • ${s.section} • ${s.subject} • Term ${s.term}</p>
+    <p><strong>Classification:</strong> <span class="badge ${s.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment'}">${s.classification}</span></p>
+    <p><strong>Initial Score:</strong> ${s.initialScore}/60</p>
+    <hr style="margin:12px 0; border:none; border-top:1px solid #ecf0f1;">
+    <h4>Mock Exam Attempts (${s.mockAttempts.length})</h4>
+    <p>Best: <strong>${bestMock}/60</strong></p>
+    <ul style="margin-left:20px; font-size:14px;">
+      ${s.mockAttempts.map((a, i) => `<li>Attempt ${i + 1}: ${a.score}/60 — ${new Date(a.date).toLocaleString()}</li>`).join('') || '<li>No mock attempts yet.</li>'}
+    </ul>
+    <h4 style="margin-top:12px;">Final Exam Attempts (${s.finalAttempts.length}/3)</h4>
+    <ul style="margin-left:20px; font-size:14px;">
+      ${s.finalAttempts.map((a, i) => `<li>Attempt ${i + 1}: ${a.score}/60 — ${new Date(a.date).toLocaleString()}</li>`).join('') || '<li>No final attempts yet.</li>'}
+    </ul>
+  `;
+
+  if (finalLast !== null) {
+    html += `
+      <div class="stat-box" style="margin-top:12px; border-left:4px solid ${proficiency.color};">
+        <div class="value" style="color:${proficiency.color};">${finalLast}/60</div>
+        <div class="label">Final Score (Last Attempt)</div>
+      </div>
+      <div class="stat-box" style="margin-top:8px;">
+        <div class="value" style="color:${proficiency.color};">${proficiency.level}</div>
+        <div class="label">Proficiency Level (Based on Adjusted Transmutation Table, SY 2026-2027)</div>
+      </div>
+    `;
+  }
+
+  html += `
+    <h4 style="margin-top:16px;">Badges Earned</h4>
+    <p style="font-size:14px;">${(s.badges || []).map(b => '🏅 ' + b).join(' ') || 'No badges yet.'}</p>
+    <p><strong>Total XP:</strong> ${s.xp || 0}</p>
+    <button class="btn btn-accent" onclick="showExport()">📤 Export Data</button>
+  `;
+
+  document.getElementById('resultsContent').innerHTML = html;
+}
+function hideResults() {
+  document.getElementById('resultsSection').classList.add('hidden');
+}
+
+/* ============================================================
+   EXPORT
+   ============================================================ */
+function showExport() {
+  document.getElementById('exportSection').classList.remove('hidden');
+  const s = currentSession;
+  const payload = {
+    firstName: s.firstName, lastName: s.lastName, studentId: s.studentId,
+    gradeLevel: s.gradeLevel, section: s.section, term: s.term, subject: s.subject,
+    initialScore: s.initialScore, classification: s.classification,
+    mockAttempts: s.mockAttempts, finalAttempts: s.finalAttempts,
+    xp: s.xp, badges: s.badges, reviewedModules: s.reviewedModules
+  };
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  document.getElementById('exportCode').value = code;
+  document.getElementById('qrcode').innerHTML = '';
+  new QRCode(document.getElementById('qrcode'), { text: code, width: 200, height: 200 });
+}
+function hideExport() {
+  document.getElementById('exportSection').classList.add('hidden');
+}
+function copyExportCode() {
+  const ta = document.getElementById('exportCode');
+  ta.select();
+  document.execCommand('copy');
+  toast('Code copied to clipboard!');
+}
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
+function confirmLogout() {
+  showModal(`
+    <h3>Logout</h3>
+    <p style="margin:10px 0;">Your data is saved on this device. Would you like to logout?</p>
+    <button class="btn" onclick="doLogout()">Logout</button>
+    <button class="btn btn-danger" onclick="doLogoutAndDelete()">Logout & Delete My Data</button>
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+  `);
+}
+function doLogout() {
+  setSession(null);
+  currentSession = null;
+  closeModal();
+  document.getElementById('dashboardScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginScreen').scrollIntoView();
+  toast('Logged out successfully.');
+}
+function doLogoutAndDelete() {
+  const sess = getSession();
+  if (!sess) return;
+  if (!confirm('Are you sure? This will permanently delete your progress on this device.')) return;
+  const store = getStore();
+  delete store.students[sess.key];
+  saveStore(store);
+  doLogout();
+  toast('Your data has been deleted from this device.');
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+(function init() {
+  const sess = getSession();
+  if (sess) {
+    enterDashboard();
+  }
+})();
+</script>
+</body>
+</html>

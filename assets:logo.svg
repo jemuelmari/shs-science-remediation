@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Outer blue ring -->
+  <circle cx="100" cy="100" r="95" fill="#1a3a6b" stroke="#f5a623" stroke-width="4"/>
+  <!-- Inner white circle -->
+  <circle cx="100" cy="100" r="80" fill="#ffffff"/>
+  <!-- Torch flame -->
+  <path d="M100 45 C 95 60, 90 70, 100 85 C 110 70, 105 60, 100 45 Z" fill="#f5a623"/>
+  <!-- Torch handle -->
+  <rect x="96" y="85" width="8" height="35" fill="#1a3a6b"/>
+  <!-- Book -->
+  <path d="M65 120 Q 100 110, 135 120 L 135 135 Q 100 125, 65 135 Z" fill="#ffffff" stroke="#1a3a6b" stroke-width="2"/>
+  <path d="M65 120 L 65 135" stroke="#1a3a6b" stroke-width="2"/>
+  <path d="M135 120 L 135 135" stroke="#1a3a6b" stroke-width="2"/>
+  <!-- Text -->
+  <text x="100" y="155" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a3a6b">IBA HIGH SCHOOL</text>
+  <text x="100" y="170" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#1a3a6b">SAN JOSE, TARLAC</text>
+</svg>
