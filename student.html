@@ -255,8 +255,8 @@
       <label>Last Name</label>
       <input id="lastName" type="text" placeholder="e.g., Dela Cruz" autocomplete="family-name">
 
-      <label>Student ID</label>
-      <input id="studentId" type="text" placeholder="e.g., 2024-00123" autocomplete="off">
+      <label>Learner Reference Number (LRN)</label>
+      <input id="studentId" type="text" placeholder="e.g., 123456789012" autocomplete="off">
 
       <label>Grade Level</label>
       <select id="gradeLevel">
@@ -651,7 +651,7 @@ function handleLogin() {
   if (student) {
     showModal(`
       <h3>Existing Record Found</h3>
-      <p style="margin:10px 0;">A record for <strong>${student.firstName} ${student.lastName}</strong> (${student.studentId}) already exists for ${subject}, Term ${term}.</p>
+      <p style="margin:10px 0;">A record for <strong>${student.firstName} ${student.lastName}</strong> (LRN: ${student.studentId}) already exists for ${subject}, Term ${term}.</p>
       <button class="btn" onclick="resumeSession('${key}')">Resume Previous Session</button>
       <button class="btn btn-outline" onclick="startFresh('${key}')">Start Fresh</button>
       <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
@@ -721,7 +721,7 @@ function enterDashboard() {
   document.getElementById('dashboardScreen').classList.remove('hidden');
 
   document.getElementById('welcomeText').textContent = `Welcome, ${currentSession.firstName}!`;
-  document.getElementById('studentInfo').textContent = `${currentSession.studentId} • Grade ${currentSession.gradeLevel} • ${currentSession.section} • ${currentSession.subject} • Term ${currentSession.term}`;
+  document.getElementById('studentInfo').textContent = `LRN: ${currentSession.studentId} • Grade ${currentSession.gradeLevel} • ${currentSession.section} • ${currentSession.subject} • Term ${currentSession.term}`;
 
   const badge = document.getElementById('classificationBadge');
   badge.textContent = currentSession.classification;
@@ -738,7 +738,6 @@ function updateDashboardStats() {
   document.getElementById('finalAttempts').textContent = `${s.finalAttempts.length}/3`;
   document.getElementById('badgeCount').textContent = (s.badges || []).length;
 
-  // Progress: review (0-50%), mock pass (50-75%), final (75-100%)
   let progress = 0;
   const totalModules = getModulesForSubject(s.subject).length;
   progress += Math.min(50, (s.reviewedModules.length / totalModules) * 50);
@@ -746,7 +745,6 @@ function updateDashboardStats() {
   if (s.finalAttempts.length > 0) progress += 25;
   document.getElementById('progressFill').style.width = progress + '%';
 
-  // Final exam button logic
   const finalBtn = document.getElementById('finalExamBtn');
   if (s.classification === 'ENRICHMENT') {
     finalBtn.disabled = true;
@@ -922,7 +920,6 @@ function finishMockExam() {
   const score = mockState.score;
   s.mockAttempts.push({ score, date: new Date().toISOString() });
 
-  // Badges
   if (score >= 43 && !s.badges.includes('mock_pass')) {
     s.badges.push('mock_pass');
     s.xp += 20;
@@ -1071,7 +1068,7 @@ function showResults() {
 
   let html = `
     <h3>${s.firstName} ${s.lastName}</h3>
-    <p style="font-size:13px; color:var(--muted);">${s.studentId} • Grade ${s.gradeLevel} • ${s.section} • ${s.subject} • Term ${s.term}</p>
+    <p style="font-size:13px; color:var(--muted);">LRN: ${s.studentId} • Grade ${s.gradeLevel} • ${s.section} • ${s.subject} • Term ${s.term}</p>
     <p><strong>Classification:</strong> <span class="badge ${s.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment'}">${s.classification}</span></p>
     <p><strong>Initial Score:</strong> ${s.initialScore}/60</p>
     <hr style="margin:12px 0; border:none; border-top:1px solid #ecf0f1;">
