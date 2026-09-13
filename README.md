@@ -67,7 +67,7 @@ The Instructor Dashboard and Gradebook are **restricted to the developer/teacher
 
 1. Open the app link.
 2. Click **Student App**.
-3. Log in with name, student ID, grade level, section, term, subject, and initial score.
+3. Log in with name, **Learner Reference Number (LRN)**, grade level, section, term, subject, and initial score.
 4. Review all modules.
 5. Take the mock exam (unlimited attempts, immediate feedback).
 6. Score **43/60** or higher to unlock the Final Exam.
@@ -80,7 +80,7 @@ The Instructor Dashboard and Gradebook are **restricted to the developer/teacher
 1. Open `instructor.html` directly.
 2. Enter the admin password.
 3. Paste the student's export code into the Import field.
-4. View the student's record.
+4. View the student's record (includes LRN).
 5. Optionally grant extra attempts or edit initial scores.
 6. Export all student data to CSV.
 
