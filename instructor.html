@@ -71,7 +71,6 @@
   .stat-box .value { font-size: 22px; font-weight: 700; color: var(--primary); }
   .stat-box .label { font-size: 11px; color: var(--muted); }
 
-  /* PASSWORD GATE */
   .gate {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
@@ -131,7 +130,7 @@
     <div class="card">
       <h2>🔍 Filter Students</h2>
       <div class="filter-row">
-        <input id="filterName" placeholder="Search name or ID..." oninput="renderStudents()">
+        <input id="filterName" placeholder="Search name or LRN..." oninput="renderStudents()">
         <select id="filterGrade" onchange="renderStudents()">
           <option value="">All Grades</option>
           <option value="11">Grade 11</option>
@@ -206,7 +205,6 @@ function lockDashboard() {
   document.getElementById('adminPassword').focus();
 }
 
-// Auto-unlock if already authenticated in this session
 (function init() {
   if (sessionStorage.getItem('ihs_admin_unlocked') === '1') {
     document.getElementById('passwordGate').style.display = 'none';
@@ -295,7 +293,7 @@ function renderStudents() {
     div.className = 'student-card';
     div.innerHTML = `
       <h4>${s.firstName} ${s.lastName}</h4>
-      <div class="meta">${s.studentId} • Grade ${s.gradeLevel} • ${s.section} • ${s.subject} • Term ${s.term}</div>
+      <div class="meta">LRN: ${s.studentId} • Grade ${s.gradeLevel} • ${s.section} • ${s.subject} • Term ${s.term}</div>
       <span class="badge ${s.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment'}">${s.classification}</span>
       <div class="stat-grid">
         <div class="stat-box"><div class="value">${s.initialScore}/60</div><div class="label">Initial</div></div>
@@ -371,7 +369,7 @@ function clearAllData() {
 
 function exportAllCSV() {
   const store = getStore();
-  const rows = [['Student ID','First Name','Last Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','XP']];
+  const rows = [['LRN','First Name','Last Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','XP']];
   Object.values(store.students).forEach(s => {
     const mockBest = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : '';
     const finalBest = s.finalAttempts && s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : '';
