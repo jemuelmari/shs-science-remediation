@@ -115,7 +115,6 @@
   .hidden { display: none !important; }
   .developer-credit { text-align: center; font-size: 12px; color: var(--muted); padding: 16px; margin-top: 20px; }
 
-  /* Review content styling */
   .review-body { font-size: 14px; line-height: 1.7; }
   .review-body h3 {
     margin-top: 18px; margin-bottom: 8px;
@@ -126,13 +125,8 @@
   .review-body p { margin-bottom: 10px; }
   .review-body ul, .review-body ol { margin-left: 20px; margin-bottom: 10px; }
   .review-body li { margin-bottom: 4px; }
-  .review-body table {
-    width: 100%; border-collapse: collapse; margin: 10px 0;
-    font-size: 13px;
-  }
-  .review-body th, .review-body td {
-    border: 1px solid #dfe6e9; padding: 6px 8px; text-align: left;
-  }
+  .review-body table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  .review-body th, .review-body td { border: 1px solid #dfe6e9; padding: 6px 8px; text-align: left; }
   .review-body th { background: #f8f9fa; color: var(--primary); font-weight: 700; }
   .review-body .key-idea {
     background: #fff8e1; border-left: 4px solid var(--accent);
@@ -170,7 +164,6 @@
 <body>
 
 <div class="app-container">
-  <!-- HEADER -->
   <div class="header">
     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Iba High School Logo">
     <div class="header-text">
@@ -179,7 +172,6 @@
     </div>
   </div>
 
-  <!-- LOGIN SCREEN -->
   <div id="loginScreen">
     <div class="card">
       <h2>🎓 Student Login</h2>
@@ -202,8 +194,9 @@
       </select>
 
       <label>Section</label>
-      <input id="section" type="text" placeholder="e.g., STEM-11A" list="sectionList">
-      <datalist id="sectionList"></datalist>
+      <select id="section">
+        <option value="">-- Select Grade Level First --</option>
+      </select>
 
       <label>Term</label>
       <select id="term">
@@ -227,7 +220,6 @@
     </div>
   </div>
 
-  <!-- DASHBOARD SCREEN -->
   <div id="dashboardScreen" class="hidden">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
@@ -256,7 +248,6 @@
       </div>
     </div>
 
-    <!-- REVIEW MODULES -->
     <div id="reviewSection" class="hidden">
       <div class="card">
         <h2>📚 Review Modules</h2>
@@ -266,7 +257,6 @@
       </div>
     </div>
 
-    <!-- MOCK EXAM -->
     <div id="mockExamSection" class="hidden">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -282,7 +272,6 @@
       </div>
     </div>
 
-    <!-- FINAL EXAM -->
     <div id="finalExamSection" class="hidden">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
@@ -298,7 +287,6 @@
       </div>
     </div>
 
-    <!-- RESULTS -->
     <div id="resultsSection" class="hidden">
       <div class="card">
         <h2>📊 My Results</h2>
@@ -307,7 +295,6 @@
       </div>
     </div>
 
-    <!-- EXPORT -->
     <div id="exportSection" class="hidden">
       <div class="card">
         <h2>📤 Export My Data</h2>
@@ -322,7 +309,6 @@
     </div>
   </div>
 
-  <!-- DEVELOPER CREDIT -->
   <div class="developer-credit">
     Developed by <strong>JEMUEL C. MARI, MAN, RN, LPT</strong><br>
     Senior High School, Teacher II<br>
@@ -330,13 +316,8 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast" class="toast"></div>
-
-<!-- MODAL (Generic — used for existing-record prompt and review viewer) -->
-<div id="modal" class="modal">
-  <div class="modal-content" id="modalContent"></div>
-</div>
+<div id="modal" class="modal"><div class="modal-content" id="modalContent"></div></div>
 
 <script>
 /* ============================================================
@@ -349,9 +330,7 @@ function getStore() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { students: {} }; }
   catch(e) { return { students: {} }; }
 }
-function saveStore(store) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-}
+function saveStore(store) { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); }
 function getSession() {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
   catch(e) { return null; }
@@ -362,7 +341,15 @@ function setSession(s) {
 }
 
 /* ============================================================
-   REVIEW CONTENT (HTML STRINGS)
+   SECTION OPTIONS BY GRADE LEVEL
+   ============================================================ */
+const SECTIONS_BY_GRADE = {
+  '11': ['ACADEMIC A', 'ACADEMIC B'],
+  '12': ['GAS', 'HUMSS']
+};
+
+/* ============================================================
+   REVIEW CONTENT
    ============================================================ */
 const GEN_SCI_REVIEW = {
   gs1: `
@@ -1096,7 +1083,7 @@ const PHYS_SCI_REVIEW = {
 };
 
 /* ============================================================
-   QUESTION BANK (unchanged)
+   QUESTION BANK
    ============================================================ */
 const GEN_SCI_QUESTIONS = [
   {q:"Which property of sound refers to how high or low a sound is?",opts:["Amplitude","Pitch","Echo","Frequency"],ans:1,exp:"Pitch refers to how high or low a sound is; it is determined by frequency."},
@@ -1266,40 +1253,46 @@ function getProficiency(score) {
 }
 
 /* ============================================================
-   LOGIN
+   LOGIN — GRADE-BASED SUBJECT AND SECTION DROPDOWNS
    ============================================================ */
 document.getElementById('gradeLevel').addEventListener('change', function() {
+  const grade = this.value;
   const subj = document.getElementById('subject');
+  const section = document.getElementById('section');
+
   subj.innerHTML = '';
-  if (this.value === '11') {
+  if (grade === '11') {
     subj.innerHTML = '<option value="General Science">General Science</option>';
-  } else if (this.value === '12') {
+  } else if (grade === '12') {
     subj.innerHTML = '<option value="Physical Science">Physical Science</option>';
   } else {
     subj.innerHTML = '<option value="">-- Select Grade Level First --</option>';
   }
-});
 
-function loadSectionDatalist() {
-  const store = getStore();
-  const sections = new Set();
-  Object.values(store.students).forEach(s => { if (s.section) sections.add(s.section); });
-  const dl = document.getElementById('sectionList');
-  dl.innerHTML = '';
-  sections.forEach(sec => {
-    const opt = document.createElement('option');
-    opt.value = sec;
-    dl.appendChild(opt);
-  });
-}
-loadSectionDatalist();
+  section.innerHTML = '';
+  if (grade === '11') {
+    section.innerHTML = `
+      <option value="">-- Select Section --</option>
+      <option value="ACADEMIC A">ACADEMIC A</option>
+      <option value="ACADEMIC B">ACADEMIC B</option>
+    `;
+  } else if (grade === '12') {
+    section.innerHTML = `
+      <option value="">-- Select Section --</option>
+      <option value="GAS">GAS</option>
+      <option value="HUMSS">HUMSS</option>
+    `;
+  } else {
+    section.innerHTML = '<option value="">-- Select Grade Level First --</option>';
+  }
+});
 
 function handleLogin() {
   const firstName = titleCase(document.getElementById('firstName').value.trim());
   const lastName = titleCase(document.getElementById('lastName').value.trim());
   const studentId = document.getElementById('studentId').value.trim();
   const gradeLevel = document.getElementById('gradeLevel').value;
-  const section = titleCase(document.getElementById('section').value.trim());
+  const section = document.getElementById('section').value;
   const term = document.getElementById('term').value;
   const subject = document.getElementById('subject').value;
   const initialScoreRaw = document.getElementById('initialScore').value;
@@ -1368,7 +1361,7 @@ function startFresh(key) {
   const lastName = titleCase(document.getElementById('lastName').value.trim());
   const studentId = document.getElementById('studentId').value.trim();
   const gradeLevel = document.getElementById('gradeLevel').value;
-  const section = titleCase(document.getElementById('section').value.trim());
+  const section = document.getElementById('section').value;
   const term = document.getElementById('term').value;
   const subject = document.getElementById('subject').value;
   const initialScore = parseInt(document.getElementById('initialScore').value, 10);
@@ -1496,7 +1489,6 @@ function renderModules() {
   });
 }
 
-/* --- Review Viewer Modal --- */
 function openReviewModule(moduleId) {
   const s = currentSession;
   const modules = getModulesForSubject(s.subject);
