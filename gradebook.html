@@ -22,10 +22,13 @@
     display: flex; align-items: center; gap: 12px;
     padding: 16px; background: var(--primary); color: white;
     border-radius: 12px; margin-bottom: 16px;
+    flex-wrap: wrap;
   }
   .header img { width: 56px; height: 56px; border-radius: 50%; background: white; padding: 4px; }
+  .header-text { flex: 1; }
   .header-text h1 { font-size: 20px; }
   .header-text p { font-size: 12px; opacity: 0.9; }
+  .header-actions { display: flex; gap: 8px; }
   .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
   h2 { font-size: 20px; margin-bottom: 12px; color: var(--primary); }
   h3 { font-size: 16px; margin: 16px 0 8px; color: var(--primary); }
@@ -47,6 +50,8 @@
   }
   .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
   .btn-accent { background: var(--accent); color: #2c3e50; }
+  .btn-header { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 8px 14px; font-size: 13px; }
+  .btn-header:hover { background: rgba(255,255,255,0.3); }
   .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .filter-row > * { flex: 1; min-width: 140px; padding: 8px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 14px; }
   .developer-credit { text-align: center; font-size: 12px; color: var(--muted); padding: 16px; margin-top: 20px; }
@@ -70,43 +75,43 @@
   .gate-box img { width: 80px; height: 80px; border-radius: 50%; background: white; padding: 6px; margin-bottom: 16px; }
   .gate-box h2 { font-size: 22px; color: var(--primary); margin-bottom: 8px; }
   .gate-box p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-  .gate-box input { text-align: center; font-size: 16px; letter-spacing: 2px; width: 100%; padding: 10px; border: 2px solid #dfe6e9; border-radius: 8px; }
+  .password-wrapper { position: relative; }
+  .password-wrapper input { text-align: center; font-size: 16px; letter-spacing: 2px; width: 100%; padding: 10px 44px 10px 10px; border: 2px solid #dfe6e9; border-radius: 8px; }
+  .peek-btn {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    background: #dfe6e9; border: none; border-radius: 6px; width: 34px; height: 34px;
+    cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  }
+  .peek-btn:hover { background: #bdc3c7; }
   .gate-error { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 18px; }
   .main-content { display: none; }
   .main-content.unlocked { display: block; }
 
-  /* Sync indicator */
   .sync-indicator {
     display: inline-block; padding: 4px 10px; border-radius: 20px;
     font-size: 11px; font-weight: 700; margin-left: 8px;
     background: #e0f7e9; color: #27ae60;
   }
   .sync-indicator.offline { background: #ffe0e0; color: #c0392b; }
-
-  /* Flash animation for auto-updated rows */
-  @keyframes flash {
-    0% { background: #fff9c4; }
-    100% { background: transparent; }
-  }
-  .flash-update { animation: flash 2s ease-out; }
 </style>
 </head>
 <body>
 
-<!-- PASSWORD GATE -->
 <div id="passwordGate" class="gate">
   <div class="gate-box">
     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Logo">
     <h2>🔒 Restricted Access</h2>
     <p>This gradebook is for the developer/teacher only.<br>Please enter the admin password to continue.</p>
-    <input id="adminPassword" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()">
+    <div class="password-wrapper">
+      <input id="adminPassword" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()">
+      <button class="peek-btn" onclick="togglePeek('adminPassword', this)" title="Peek password">👁</button>
+    </div>
     <div class="gate-error" id="gateError"></div>
     <button class="btn" style="width:100%; margin-top:12px;" onclick="checkPassword()">Unlock</button>
     <p style="margin-top:16px; font-size:12px; color:var(--muted);">Developer: JEMUEL C. MARI, MAN, RN, LPT</p>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main-content" id="mainContent">
   <div class="container">
     <div class="header">
@@ -115,16 +120,23 @@
         <h1>Gradebook <span class="sync-indicator" id="syncStatus">🔄 Live Sync On</span></h1>
         <p>Iba High School • Senior High School Department • Science Remediation</p>
       </div>
+      <div class="header-actions">
+        <button class="btn btn-header" onclick="lockGradebook()">🔒 Lock</button>
+        <button class="btn btn-header" onclick="logout()">🚪 Logout</button>
+      </div>
     </div>
 
     <div class="card no-print">
       <h2>🔍 Filters</h2>
       <div class="filter-row">
         <input id="filterName" placeholder="Search name or LRN..." oninput="renderGradebook()">
-        <select id="filterGrade" onchange="renderGradebook()">
+        <select id="filterGrade" onchange="onFilterGradeChange()">
           <option value="">All Grades</option>
           <option value="11">Grade 11</option>
           <option value="12">Grade 12</option>
+        </select>
+        <select id="filterSection" onchange="renderGradebook()">
+          <option value="">All Sections</option>
         </select>
         <select id="filterSubject" onchange="renderGradebook()">
           <option value="">All Subjects</option>
@@ -135,7 +147,6 @@
       <button class="btn btn-accent" onclick="window.print()">🖨️ Print Gradebook</button>
       <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
       <button class="btn btn-outline" onclick="manualRefresh()">🔄 Refresh Data</button>
-      <button class="btn btn-outline" onclick="lockGradebook()">🔒 Lock Gradebook</button>
       <p style="font-size:12px; color:var(--muted); margin-top:8px;">
         Last refreshed: <span id="lastRefresh">—</span>
       </p>
@@ -183,27 +194,29 @@
 </div>
 
 <script>
-/* ============================================================
-   ADMIN PASSWORD (CHANGE THIS TO YOUR PREFERRED PASSWORD)
-   ============================================================ */
 const ADMIN_PASSWORD = 'IHS-ADMIN-2026';
 
-/* ============================================================
-   BROADCAST CHANNEL (Solution 4 — Cross-Tab Auto Sync)
-   ============================================================ */
+const SECTIONS_BY_GRADE = {
+  '11': ['ACADEMIC A', 'ACADEMIC B'],
+  '12': ['GAS', 'HUMSS']
+};
+function getSectionsForGrade(grade) {
+  return SECTIONS_BY_GRADE[String(grade)] || [];
+}
+
 const SYNC_CHANNEL_NAME = 'ihs_gradebook_sync';
 let syncChannel = null;
 try {
   syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
   syncChannel.onmessage = (event) => {
     if (event.data && event.data.type === 'DATA_UPDATED') {
-      console.log('📡 Received sync signal from Instructor Dashboard:', event.data.action);
+      console.log('📡 Sync signal received:', event.data.action);
       renderGradebook();
       flashHeader('🔄 Updated: ' + event.data.action);
     }
   };
 } catch (e) {
-  console.warn('BroadcastChannel not supported in this browser. Using manual refresh only.');
+  console.warn('BroadcastChannel not supported.');
   const ind = document.getElementById('syncStatus');
   if (ind) { ind.textContent = '⚠️ Manual Sync Only'; ind.classList.add('offline'); }
 }
@@ -222,9 +235,17 @@ function flashHeader(text) {
   }, 2000);
 }
 
-/* ============================================================
-   PASSWORD GATE
-   ============================================================ */
+function togglePeek(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
 function checkPassword() {
   const input = document.getElementById('adminPassword').value;
   const err = document.getElementById('gateError');
@@ -249,6 +270,12 @@ function lockGradebook() {
   document.getElementById('adminPassword').focus();
 }
 
+function logout() {
+  if (!confirm('Logout from Gradebook? The password will be required again.')) return;
+  sessionStorage.removeItem('ihs_admin_unlocked');
+  window.location.href = 'index.html';
+}
+
 (function init() {
   if (sessionStorage.getItem('ihs_admin_unlocked') === '1') {
     document.getElementById('passwordGate').style.display = 'none';
@@ -259,9 +286,6 @@ function lockGradebook() {
   }
 })();
 
-/* ============================================================
-   DATA LAYER
-   ============================================================ */
 const STORAGE_KEY = 'ihs_science_remediation_v1';
 const PASS_THRESHOLD = 43;
 
@@ -286,14 +310,40 @@ function getProficiencyColor(score) {
   return '#e74c3c';
 }
 
+function onFilterGradeChange() {
+  const grade = document.getElementById('filterGrade').value;
+  const sectionSel = document.getElementById('filterSection');
+  sectionSel.innerHTML = '<option value="">All Sections</option>';
+  if (grade) {
+    getSectionsForGrade(grade).forEach(sec => {
+      const opt = document.createElement('option');
+      opt.value = sec;
+      opt.textContent = sec;
+      sectionSel.appendChild(opt);
+    });
+  } else {
+    const allSections = new Set();
+    Object.values(SECTIONS_BY_GRADE).forEach(arr => arr.forEach(s => allSections.add(s)));
+    allSections.forEach(sec => {
+      const opt = document.createElement('option');
+      opt.value = sec;
+      opt.textContent = sec;
+      sectionSel.appendChild(opt);
+    });
+  }
+  renderGradebook();
+}
+
 function getFilteredStudents() {
   const store = getStore();
   const nameFilter = document.getElementById('filterName').value.toLowerCase();
   const gradeFilter = document.getElementById('filterGrade').value;
+  const sectionFilter = document.getElementById('filterSection').value;
   const subjectFilter = document.getElementById('filterSubject').value;
   return Object.values(store.students).filter(s => {
     if (nameFilter && !(`${s.firstName} ${s.lastName} ${s.studentId}`.toLowerCase().includes(nameFilter))) return false;
     if (gradeFilter && s.gradeLevel !== gradeFilter) return false;
+    if (sectionFilter && s.section !== sectionFilter) return false;
     if (subjectFilter && s.subject !== subjectFilter) return false;
     return true;
   });
@@ -330,7 +380,7 @@ function renderGradebook() {
       <td>${s.studentId}</td>
       <td>${s.firstName} ${s.lastName}</td>
       <td>${s.gradeLevel}</td>
-      <td>${s.section}</td>
+      <td>${s.section || '—'}</td>
       <td>${s.subject}</td>
       <td>${s.term}</td>
       <td>${s.initialScore}/60</td>
@@ -357,7 +407,6 @@ function updateLastRefresh() {
 function manualRefresh() {
   renderGradebook();
   flashHeader('✅ Manually refreshed');
-  console.log('📊 Manual refresh triggered at', new Date().toLocaleTimeString());
 }
 
 function renderStats(students) {
@@ -432,17 +481,14 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-/* ============================================================
-   FALLBACK: Also listen to the native `storage` event
-   (in case BroadcastChannel is not supported)
-   ============================================================ */
 window.addEventListener('storage', function(e) {
   if (e.key === STORAGE_KEY) {
-    console.log('📡 Storage event detected — refreshing gradebook...');
     renderGradebook();
     flashHeader('🔄 Updated (storage event)');
   }
 });
+
+onFilterGradeChange();
 </script>
 </body>
 </html>
