@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Instructor Dashboard - Iba High School</title>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
   :root {
     --primary: #1a3a6b;
@@ -34,6 +35,7 @@
     margin: 4px 4px 4px 0; transition: opacity 0.2s;
   }
   .btn:hover { opacity: 0.9; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-accent { background: var(--accent); color: #2c3e50; }
   .btn-success { background: var(--success); }
   .btn-danger { background: var(--danger); }
@@ -90,13 +92,71 @@
   .main-content { display: none; }
   .main-content.unlocked { display: block; }
 
-  /* Sync indicator */
   .sync-indicator {
     display: inline-block; padding: 4px 10px; border-radius: 20px;
     font-size: 11px; font-weight: 700; margin-left: 8px;
     background: #e0f7e9; color: #27ae60;
   }
   .sync-indicator.offline { background: #ffe0e0; color: #c0392b; }
+
+  /* QR Scanner Modal */
+  .qr-modal {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85); display: none;
+    align-items: center; justify-content: center;
+    z-index: 3000; padding: 16px;
+  }
+  .qr-modal.show { display: flex; }
+  .qr-modal-content {
+    background: white; border-radius: 12px; padding: 20px;
+    max-width: 500px; width: 100%; text-align: center;
+    max-height: 95vh; overflow-y: auto;
+  }
+  .qr-modal-content h3 { color: var(--primary); margin-bottom: 12px; }
+  .qr-video-wrap {
+    position: relative; width: 100%; aspect-ratio: 1;
+    background: #000; border-radius: 10px; overflow: hidden;
+    margin-bottom: 12px;
+  }
+  #qrVideo {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .qr-frame {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 65%; aspect-ratio: 1;
+    border: 3px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.35);
+    pointer-events: none;
+  }
+  .qr-status {
+    font-size: 13px; color: var(--muted); margin-top: 8px;
+    min-height: 20px;
+  }
+  .qr-status.error { color: var(--danger); font-weight: 600; }
+  .qr-status.success { color: var(--success); font-weight: 600; }
+
+  /* Import options layout */
+  .import-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px; margin: 12px 0;
+  }
+  .import-option {
+    border: 2px dashed #dfe6e9; border-radius: 10px;
+    padding: 16px; text-align: center;
+    cursor: pointer; transition: all 0.2s;
+    background: white;
+  }
+  .import-option:hover {
+    border-color: var(--accent);
+    background: #fffdf5;
+    transform: translateY(-2px);
+  }
+  .import-option .icon { font-size: 32px; margin-bottom: 6px; }
+  .import-option .label { font-size: 14px; font-weight: 600; color: var(--primary); }
+  .import-option .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -125,9 +185,37 @@
       </div>
     </div>
 
+    <!-- IMPORT CARD (UPGRADED) -->
     <div class="card">
       <h2>📥 Import Student Data</h2>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Paste the export code from the student's app below, then click Import. The Gradebook will auto-refresh.</p>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">
+        Choose how you want to receive the student's data. The Gradebook auto-refreshes after every import.
+      </p>
+
+      <!-- Three import options -->
+      <div class="import-options">
+        <div class="import-option" onclick="triggerQRUpload()">
+          <div class="icon">🖼️</div>
+          <div class="label">Upload QR Image</div>
+          <div class="hint">From screenshot or photo</div>
+        </div>
+        <div class="import-option" onclick="openQRScanner()">
+          <div class="icon">📷</div>
+          <div class="label">Scan with Camera</div>
+          <div class="hint">Use phone or webcam</div>
+        </div>
+        <div class="import-option" onclick="focusPasteArea()">
+          <div class="icon">📋</div>
+          <div class="label">Paste Code</div>
+          <div class="hint">Copyable text code</div>
+        </div>
+      </div>
+
+      <!-- Hidden file input for QR upload -->
+      <input type="file" id="qrFileInput" accept="image/*" style="display:none" onchange="handleQRUpload(event)">
+
+      <!-- Paste area -->
+      <label>Or paste the export code manually:</label>
       <textarea id="importCode" placeholder="Paste the student's export code here..."></textarea>
       <div style="margin-top:8px;">
         <button class="btn btn-success" onclick="importStudent()">Import Student</button>
@@ -178,16 +266,34 @@
   </div>
 </div>
 
+<!-- QR SCANNER MODAL -->
+<div class="qr-modal" id="qrModal">
+  <div class="qr-modal-content">
+    <h3>📷 Scan QR Code</h3>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
+      Point your camera at the student's QR code. It will be detected automatically.
+    </p>
+    <div class="qr-video-wrap">
+      <video id="qrVideo" playsinline></video>
+      <div class="qr-frame"></div>
+    </div>
+    <div class="qr-status" id="qrStatus">Initializing camera…</div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-danger" onclick="closeQRScanner()">✕ Close Scanner</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
 /* ============================================================
-   ADMIN PASSWORD (CHANGE THIS TO YOUR PREFERRED PASSWORD)
+   ADMIN PASSWORD
    ============================================================ */
 const ADMIN_PASSWORD = 'IHS-ADMIN-2026';
 
 /* ============================================================
-   BROADCAST CHANNEL (Solution 4 — Cross-Tab Auto Sync)
+   BROADCAST CHANNEL
    ============================================================ */
 const SYNC_CHANNEL_NAME = 'ihs_gradebook_sync';
 let syncChannel = null;
@@ -271,27 +377,245 @@ function getProficiency(score) {
   return 'Did Not Meet Expectations';
 }
 
-function importStudent() {
-  const code = document.getElementById('importCode').value.trim();
-  if (!code) { toast('Please paste an export code.'); return; }
+/* ============================================================
+   IMPORT LOGIC (shared by all 3 methods)
+   ============================================================ */
+function importStudentFromCode(code, sourceLabel) {
+  if (!code || !code.trim()) {
+    toast('No code found.');
+    return false;
+  }
   try {
-    const payload = JSON.parse(decodeURIComponent(escape(atob(code))));
+    const payload = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
     const store = getStore();
     const key = `${payload.studentId}_${payload.term}_${payload.subject}`;
+    const isUpdate = !!store.students[key];
     store.students[key] = payload;
     saveStore(store);
     document.getElementById('importCode').value = '';
-    toast('✅ Student imported. Gradebook will auto-refresh.');
+    toast(`✅ ${isUpdate ? 'Updated' : 'Imported'}: ${payload.firstName} ${payload.lastName} (${sourceLabel})`);
     broadcastUpdate('import');
     renderStudents();
+    return true;
   } catch(e) {
-    toast('Invalid code. Please check and try again.');
+    console.error('Import error:', e);
+    toast('Invalid QR/code. Please check and try again.');
+    return false;
   }
 }
+
+function importStudent() {
+  const code = document.getElementById('importCode').value.trim();
+  if (!code) { toast('Please paste an export code.'); return; }
+  importStudentFromCode(code, 'Manual Paste');
+}
+
 function clearImport() {
   document.getElementById('importCode').value = '';
 }
 
+function focusPasteArea() {
+  document.getElementById('importCode').focus();
+  document.getElementById('importCode').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ============================================================
+   QR IMAGE UPLOAD
+   ============================================================ */
+function triggerQRUpload() {
+  document.getElementById('qrFileInput').click();
+}
+
+function handleQRUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    toast('Please select an image file.');
+    return;
+  }
+
+  toast('🔍 Reading QR code from image…', 1500);
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // Draw image on canvas to extract pixel data
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      let imageData;
+      try {
+        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      } catch(err) {
+        toast('Could not read image data. Try a different image.');
+        return;
+      }
+
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'attemptBoth'
+      });
+
+      if (code && code.data) {
+        console.log('QR decoded from image:', code.data.substring(0, 40) + '…');
+        const success = importStudentFromCode(code.data, 'QR Upload');
+        if (!success) {
+          // Fallback: fill textarea so instructor can inspect
+          document.getElementById('importCode').value = code.data;
+        }
+      } else {
+        toast('❌ No QR code detected. Try a clearer image.');
+      }
+      // Reset the file input so the same file can be re-selected
+      event.target.value = '';
+    };
+    img.onerror = () => {
+      toast('Could not load image.');
+      event.target.value = '';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ============================================================
+   QR CAMERA SCANNER
+   ============================================================ */
+let qrStream = null;
+let qrAnimationId = null;
+
+async function openQRScanner() {
+  const modal = document.getElementById('qrModal');
+  const video = document.getElementById('qrVideo');
+  const status = document.getElementById('qrStatus');
+
+  modal.classList.add('show');
+  status.textContent = 'Requesting camera access…';
+  status.className = 'qr-status';
+
+  // Check for HTTPS or localhost (camera requires secure context)
+  if (!window.isSecureContext) {
+    status.textContent = '⚠️ Camera requires HTTPS. Please use the Upload QR option instead.';
+    status.className = 'qr-status error';
+    return;
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    status.textContent = '⚠️ Camera not supported on this device. Use Upload QR instead.';
+    status.className = 'qr-status error';
+    return;
+  }
+
+  try {
+    // Prefer rear camera on mobile
+    qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+    video.srcObject = qrStream;
+    video.setAttribute('playsinline', 'true');
+    await video.play();
+
+    status.textContent = '📷 Point the camera at the QR code…';
+    status.className = 'qr-status';
+
+    // Start scanning loop
+    scanQRFrame();
+
+  } catch (err) {
+    console.error('Camera error:', err);
+    if (err.name === 'NotAllowedError') {
+      status.textContent = '⚠️ Camera permission denied. Enable it in browser settings or use Upload QR.';
+    } else if (err.name === 'NotFoundError') {
+      status.textContent = '⚠️ No camera found. Use Upload QR instead.';
+    } else {
+      status.textContent = '⚠️ Could not access camera: ' + err.message;
+    }
+    status.className = 'qr-status error';
+  }
+}
+
+function scanQRFrame() {
+  const video = document.getElementById('qrVideo');
+  const status = document.getElementById('qrStatus');
+
+  if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
+    qrAnimationId = requestAnimationFrame(scanQRFrame);
+    return;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  let imageData;
+  try {
+    imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  } catch(e) {
+    qrAnimationId = requestAnimationFrame(scanQRFrame);
+    return;
+  }
+
+  const code = jsQR(imageData.data, imageData.width, imageData.height, {
+    inversionAttempts: 'dontInvert'
+  });
+
+  if (code && code.data) {
+    status.textContent = '✅ QR detected! Importing…';
+    status.className = 'qr-status success';
+    // Vibrate on supported devices
+    if (navigator.vibrate) navigator.vibrate(150);
+    // Small delay so user sees the success message
+    setTimeout(() => {
+      const success = importStudentFromCode(code.data, 'Camera Scan');
+      closeQRScanner();
+      if (!success) {
+        // If decode failed (invalid content), leave textarea filled
+        document.getElementById('importCode').value = code.data;
+      }
+    }, 300);
+    return;
+  }
+
+  qrAnimationId = requestAnimationFrame(scanQRFrame);
+}
+
+function closeQRScanner() {
+  const modal = document.getElementById('qrModal');
+  const video = document.getElementById('qrVideo');
+  const status = document.getElementById('qrStatus');
+
+  modal.classList.remove('show');
+
+  if (qrAnimationId) {
+    cancelAnimationFrame(qrAnimationId);
+    qrAnimationId = null;
+  }
+  if (qrStream) {
+    qrStream.getTracks().forEach(track => track.stop());
+    qrStream = null;
+  }
+  if (video) video.srcObject = null;
+  if (status) { status.textContent = ''; status.className = 'qr-status'; }
+}
+
+/* Close scanner on Escape key */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('qrModal');
+    if (modal && modal.classList.contains('show')) closeQRScanner();
+  }
+});
+
+/* ============================================================
+   STUDENT LIST RENDERING
+   ============================================================ */
 function renderStudents() {
   const store = getStore();
   const nameFilter = document.getElementById('filterName').value.toLowerCase();
@@ -343,6 +667,9 @@ function renderStudents() {
   });
 }
 
+/* ============================================================
+   STUDENT ACTIONS
+   ============================================================ */
 function grantExtraAttempt(key) {
   const store = getStore();
   const s = store.students[key];
