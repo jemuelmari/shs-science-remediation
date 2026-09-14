@@ -32,17 +32,82 @@
   .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
   h2 { font-size: 20px; margin-bottom: 12px; color: var(--primary); }
   h3 { font-size: 16px; margin: 16px 0 8px; color: var(--primary); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #ecf0f1; }
-  th { background: #f8f9fa; font-weight: 700; color: var(--primary); position: sticky; top: 0; }
-  tr:hover { background: #f8f9fa; }
+
+  /* ============================================================
+     TABLE STYLING — WITH FULL BORDERS AND NUMBER COLUMN
+     ============================================================ */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border: 2px solid var(--primary);
+  }
+  th, td {
+    padding: 8px 10px;
+    text-align: left;
+    border: 1px solid #b8c4d1;
+    vertical-align: middle;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    text-align: center;
+    border: 1px solid #0f2340;
+    z-index: 10;
+  }
+  td {
+    background: white;
+  }
+  tr:nth-child(even) td {
+    background: #f8f9fa;
+  }
+  tr:hover td {
+    background: #eef4fb;
+  }
+  /* Number column */
+  .col-no {
+    width: 50px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  th.col-no {
+    background: #0f2340;
+    color: white;
+  }
+  /* LRN column */
+  .col-lrn {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+  /* Name column */
+  .col-name {
+    font-weight: 600;
+    min-width: 160px;
+  }
+  /* Center-aligned columns */
+  .col-center {
+    text-align: center;
+  }
+  /* Proficiency colors */
+  .prof-outstanding { color: #27ae60; font-weight: 700; }
+  .prof-very-sat { color: #2ecc71; font-weight: 700; }
+  .prof-sat { color: #f39c12; font-weight: 700; }
+  .prof-fair { color: #e67e22; font-weight: 700; }
+  .prof-fail { color: #e74c3c; font-weight: 700; }
+
   .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
   .badge-remediation { background: #ffe0e0; color: #c0392b; }
   .badge-enrichment { background: #e0f7e9; color: #27ae60; }
+
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
   .stat-box { background: #f8f9fa; padding: 14px; border-radius: 8px; text-align: center; }
   .stat-box .value { font-size: 24px; font-weight: 700; color: var(--primary); }
   .stat-box .label { font-size: 12px; color: var(--muted); }
+
   .btn {
     display: inline-block; padding: 10px 18px; background: var(--primary); color: white;
     border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
@@ -55,10 +120,13 @@
   .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .filter-row > * { flex: 1; min-width: 140px; padding: 8px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 14px; }
   .developer-credit { text-align: center; font-size: 12px; color: var(--muted); padding: 16px; margin-top: 20px; }
+
   @media print {
     .no-print { display: none !important; }
     body { background: white; }
     .card { box-shadow: none; border: 1px solid #ddd; }
+    th { background: #1a3a6b !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    tr:nth-child(even) td { background: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 
   .gate {
@@ -97,6 +165,7 @@
 </head>
 <body>
 
+<!-- PASSWORD GATE -->
 <div id="passwordGate" class="gate">
   <div class="gate-box">
     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzFhM2E2YiIgc3Ryb2tlPSIjZjVhNjIzIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiPklIUzwvdGV4dD48L3N2Zz4=" alt="Logo">
@@ -112,6 +181,7 @@
   </div>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="main-content" id="mainContent">
   <div class="container">
     <div class="header">
@@ -148,7 +218,8 @@
       <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
       <button class="btn btn-outline" onclick="manualRefresh()">🔄 Refresh Data</button>
       <p style="font-size:12px; color:var(--muted); margin-top:8px;">
-        Last refreshed: <span id="lastRefresh">—</span>
+        Last refreshed: <span id="lastRefresh">—</span> • 
+        Sorted alphabetically by <strong>Last Name, First Name</strong>
       </p>
     </div>
 
@@ -164,6 +235,7 @@
         <table id="gradebookTable">
           <thead>
             <tr>
+              <th class="col-no">No.</th>
               <th>LRN</th>
               <th>Name</th>
               <th>Grade</th>
@@ -194,8 +266,14 @@
 </div>
 
 <script>
+/* ============================================================
+   ADMIN PASSWORD
+   ============================================================ */
 const ADMIN_PASSWORD = 'IHS-ADMIN-2026';
 
+/* ============================================================
+   SECTION OPTIONS BY GRADE LEVEL
+   ============================================================ */
 const SECTIONS_BY_GRADE = {
   '11': ['ACADEMIC A', 'ACADEMIC B'],
   '12': ['GAS', 'HUMSS']
@@ -204,6 +282,9 @@ function getSectionsForGrade(grade) {
   return SECTIONS_BY_GRADE[String(grade)] || [];
 }
 
+/* ============================================================
+   BROADCAST CHANNEL (Auto-sync)
+   ============================================================ */
 const SYNC_CHANNEL_NAME = 'ihs_gradebook_sync';
 let syncChannel = null;
 try {
@@ -235,6 +316,9 @@ function flashHeader(text) {
   }, 2000);
 }
 
+/* ============================================================
+   PASSWORD GATE
+   ============================================================ */
 function togglePeek(inputId, btn) {
   const input = document.getElementById(inputId);
   if (input.type === 'password') {
@@ -286,6 +370,9 @@ function logout() {
   }
 })();
 
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
 const STORAGE_KEY = 'ihs_science_remediation_v1';
 const PASS_THRESHOLD = 43;
 
@@ -301,15 +388,18 @@ function getProficiency(score) {
   if (pct >= 60) return 'Fairly Satisfactory';
   return 'Did Not Meet Expectations';
 }
-function getProficiencyColor(score) {
+function getProficiencyClass(score) {
   const pct = (score / 60) * 100;
-  if (pct >= 90) return '#27ae60';
-  if (pct >= 80) return '#2ecc71';
-  if (pct >= 70) return '#f39c12';
-  if (pct >= 60) return '#e67e22';
-  return '#e74c3c';
+  if (pct >= 90) return 'prof-outstanding';
+  if (pct >= 80) return 'prof-very-sat';
+  if (pct >= 70) return 'prof-sat';
+  if (pct >= 60) return 'prof-fair';
+  return 'prof-fail';
 }
 
+/* ============================================================
+   FILTER — SECTION DROPDOWN DYNAMIC BY GRADE
+   ============================================================ */
 function onFilterGradeChange() {
   const grade = document.getElementById('filterGrade').value;
   const sectionSel = document.getElementById('filterSection');
@@ -334,39 +424,63 @@ function onFilterGradeChange() {
   renderGradebook();
 }
 
+/* ============================================================
+   GET FILTERED + SORTED STUDENTS
+   ============================================================ */
 function getFilteredStudents() {
   const store = getStore();
   const nameFilter = document.getElementById('filterName').value.toLowerCase();
   const gradeFilter = document.getElementById('filterGrade').value;
   const sectionFilter = document.getElementById('filterSection').value;
   const subjectFilter = document.getElementById('filterSubject').value;
-  return Object.values(store.students).filter(s => {
+
+  let students = Object.values(store.students).filter(s => {
     if (nameFilter && !(`${s.firstName} ${s.lastName} ${s.studentId}`.toLowerCase().includes(nameFilter))) return false;
     if (gradeFilter && s.gradeLevel !== gradeFilter) return false;
     if (sectionFilter && s.section !== sectionFilter) return false;
     if (subjectFilter && s.subject !== subjectFilter) return false;
     return true;
   });
+
+  // ✅ ALPHABETICAL SORT: Last Name → First Name → LRN
+  students.sort((a, b) => {
+    const lastA = (a.lastName || '').toUpperCase();
+    const lastB = (b.lastName || '').toUpperCase();
+    if (lastA !== lastB) return lastA.localeCompare(lastB);
+
+    const firstA = (a.firstName || '').toUpperCase();
+    const firstB = (b.firstName || '').toUpperCase();
+    if (firstA !== firstB) return firstA.localeCompare(firstB);
+
+    return (a.studentId || '').localeCompare(b.studentId || '');
+  });
+
+  return students;
 }
 
+/* ============================================================
+   RENDER GRADEBOOK
+   ============================================================ */
 function renderGradebook() {
   const students = getFilteredStudents();
   const tbody = document.getElementById('gradebookBody');
   tbody.innerHTML = '';
 
   if (students.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; color:#7f8c8d; padding:20px;">No students found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="15" style="text-align:center; color:#7f8c8d; padding:20px;">No students found.</td></tr>';
     renderStats([]);
     updateLastRefresh();
     return;
   }
 
-  students.forEach(s => {
+  // ✅ AUTO-NUMBER: restarts at 1 each render, respects filter order
+  students.forEach((s, index) => {
+    const rowNumber = index + 1;
     const mockBest = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : null;
     const finalBest = s.finalAttempts && s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : null;
     const finalCount = s.finalAttempts ? s.finalAttempts.length : 0;
     const proficiency = finalBest !== null ? getProficiency(finalBest) : '—';
-    const proficiencyColor = finalBest !== null ? getProficiencyColor(finalBest) : '#7f8c8d';
+    const proficiencyClass = finalBest !== null ? getProficiencyClass(finalBest) : '';
     let status = '—';
     if (s.classification === 'ENRICHMENT') status = 'Enrichment';
     else if (finalCount >= 3 && finalBest !== null && finalBest < PASS_THRESHOLD) status = 'For Intervention';
@@ -377,20 +491,21 @@ function renderGradebook() {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${s.studentId}</td>
-      <td>${s.firstName} ${s.lastName}</td>
-      <td>${s.gradeLevel}</td>
-      <td>${s.section || '—'}</td>
-      <td>${s.subject}</td>
-      <td>${s.term}</td>
-      <td>${s.initialScore}/60</td>
-      <td><span class="badge ${s.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment'}">${s.classification}</span></td>
-      <td>${mockBest !== null ? mockBest + '/60' : '—'}</td>
-      <td>${finalCount}/3</td>
-      <td>${finalBest !== null ? finalBest + '/60' : '—'}</td>
-      <td style="color:${proficiencyColor}; font-weight:600;">${proficiency}</td>
-      <td>${status}</td>
-      <td>${s.xp || 0}</td>
+      <td class="col-no">${rowNumber}</td>
+      <td class="col-lrn">${s.studentId}</td>
+      <td class="col-name">${s.lastName}, ${s.firstName}</td>
+      <td class="col-center">${s.gradeLevel}</td>
+      <td class="col-center">${s.section || '—'}</td>
+      <td class="col-center">${s.subject}</td>
+      <td class="col-center">${s.term}</td>
+      <td class="col-center">${s.initialScore}/60</td>
+      <td class="col-center"><span class="badge ${s.classification === 'REMEDIATION' ? 'badge-remediation' : 'badge-enrichment'}">${s.classification}</span></td>
+      <td class="col-center">${mockBest !== null ? mockBest + '/60' : '—'}</td>
+      <td class="col-center">${finalCount}/3</td>
+      <td class="col-center">${finalBest !== null ? finalBest + '/60' : '—'}</td>
+      <td class="col-center ${proficiencyClass}">${proficiency}</td>
+      <td class="col-center">${status}</td>
+      <td class="col-center">${s.xp || 0}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -409,6 +524,9 @@ function manualRefresh() {
   flashHeader('✅ Manually refreshed');
 }
 
+/* ============================================================
+   STATISTICAL SUMMARY
+   ============================================================ */
 function renderStats(students) {
   const grid = document.getElementById('statGrid');
   const details = document.getElementById('statDetails');
@@ -451,10 +569,13 @@ function renderStats(students) {
   `;
 }
 
+/* ============================================================
+   EXPORT CSV
+   ============================================================ */
 function exportCSV() {
   const students = getFilteredStudents();
-  const rows = [['LRN','First Name','Last Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','Status','XP']];
-  students.forEach(s => {
+  const rows = [['No.','LRN','Last Name','First Name','Grade','Section','Subject','Term','Initial Score','Classification','Mock Attempts','Mock Best','Final Attempts','Final Best','Proficiency','Status','XP']];
+  students.forEach((s, i) => {
     const mockBest = s.mockAttempts && s.mockAttempts.length ? Math.max(...s.mockAttempts.map(a => a.score)) : '';
     const finalBest = s.finalAttempts && s.finalAttempts.length ? Math.max(...s.finalAttempts.map(a => a.score)) : '';
     let status = '';
@@ -463,7 +584,7 @@ function exportCSV() {
     else if (finalBest !== '' && finalBest >= PASS_THRESHOLD) status = 'Passed';
     else status = 'In Progress';
     rows.push([
-      s.studentId, s.firstName, s.lastName, s.gradeLevel, s.section, s.subject, s.term,
+      i + 1, s.studentId, s.lastName, s.firstName, s.gradeLevel, s.section, s.subject, s.term,
       s.initialScore, s.classification,
       s.mockAttempts ? s.mockAttempts.length : 0, mockBest,
       s.finalAttempts ? s.finalAttempts.length : 0, finalBest,
@@ -481,6 +602,9 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
+/* ============================================================
+   FALLBACK: storage event
+   ============================================================ */
 window.addEventListener('storage', function(e) {
   if (e.key === STORAGE_KEY) {
     renderGradebook();
@@ -488,6 +612,9 @@ window.addEventListener('storage', function(e) {
   }
 });
 
+/* ============================================================
+   INIT
+   ============================================================ */
 onFilterGradeChange();
 </script>
 </body>
