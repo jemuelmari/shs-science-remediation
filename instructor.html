@@ -87,6 +87,7 @@
   .import-tabs {
     display: flex; gap: 6px; margin-bottom: 12px;
     border-bottom: 2px solid #ecf0f1;
+    flex-wrap: wrap;
   }
   .import-tab {
     padding: 8px 16px; background: transparent; border: none;
@@ -115,6 +116,29 @@
     font-size: 14px;
   }
   #qr-reader-placeholder .icon { font-size: 48px; margin-bottom: 12px; }
+
+  .upload-area {
+    border: 3px dashed #dfe6e9;
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafbfc;
+  }
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--accent);
+    background: #fffdf5;
+  }
+  .upload-area .icon { font-size: 48px; margin-bottom: 12px; }
+  .upload-area p { font-size: 14px; color: var(--muted); margin: 4px 0; }
+  .upload-area .browse-link { color: var(--primary); font-weight: 700; text-decoration: underline; }
+  .upload-preview {
+    max-width: 300px; margin: 12px auto;
+    border-radius: 8px; overflow: hidden;
+    border: 2px solid #dfe6e9;
+  }
+  .upload-preview img { width: 100%; height: auto; display: block; }
 
   .gate {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -183,14 +207,15 @@
 
     <div class="card">
       <h2>📥 Import Student Data</h2>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Scan the student's QR code or paste the export code manually.</p>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Scan the student's QR code, upload a screenshot, or paste the export code manually.</p>
 
       <div class="import-tabs">
         <button class="import-tab active" onclick="switchImportTab('scan', this)">📷 Scan QR Code</button>
+        <button class="import-tab" onclick="switchImportTab('upload', this)">🖼️ Upload QR Image</button>
         <button class="import-tab" onclick="switchImportTab('paste', this)">📋 Paste Code</button>
       </div>
 
-      <!-- QR Scanner Panel -->
+      <!-- QR Camera Scanner Panel -->
       <div id="importPanelScan" class="import-panel active">
         <div id="qr-reader">
           <div id="qr-reader-placeholder">
@@ -204,6 +229,23 @@
         </div>
         <p style="font-size:12px; color:var(--muted); margin-top:8px; text-align:center;">
           💡 Allow camera access when prompted. Works best in good lighting.
+        </p>
+      </div>
+
+      <!-- Upload QR Image Panel -->
+      <div id="importPanelUpload" class="import-panel">
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('qrFileInput').click()">
+          <div class="icon">🖼️</div>
+          <p><strong>Click to upload</strong> or drag & drop a QR code image</p>
+          <p style="font-size:12px;">Supported: JPG, PNG, WEBP, GIF</p>
+        </div>
+        <input type="file" id="qrFileInput" accept="image/*" style="display:none;" onchange="handleQRImageUpload(event)">
+        <div id="uploadPreviewContainer" style="text-align:center;"></div>
+        <div style="margin-top:12px; text-align:center;">
+          <button class="btn btn-outline" onclick="clearUploadPreview()">Clear</button>
+        </div>
+        <p style="font-size:12px; color:var(--muted); margin-top:8px; text-align:center;">
+          💡 Take a screenshot of the student's QR code and upload it here.
         </p>
       </div>
 
@@ -374,6 +416,9 @@ function switchImportTab(tab, btn) {
   btn.classList.add('active');
   if (tab === 'scan') {
     document.getElementById('importPanelScan').classList.add('active');
+  } else if (tab === 'upload') {
+    document.getElementById('importPanelUpload').classList.add('active');
+    stopQRScanner();
   } else {
     document.getElementById('importPanelPaste').classList.add('active');
     stopQRScanner();
@@ -381,7 +426,7 @@ function switchImportTab(tab, btn) {
 }
 
 /* ============================================================
-   QR SCANNER (jsQR)
+   QR CAMERA SCANNER
    ============================================================ */
 let qrVideoStream = null;
 let qrAnimationFrame = null;
@@ -402,7 +447,6 @@ function startQRScanner() {
       video.setAttribute('playsinline', 'true');
       video.play();
 
-      // Create hidden canvas for frame capture
       qrCanvas = document.createElement('canvas');
       qrContext = qrCanvas.getContext('2d');
 
@@ -417,10 +461,10 @@ function startQRScanner() {
         <div id="qr-reader-placeholder">
           <div class="icon">⚠️</div>
           <p>Camera access was denied or unavailable.</p>
-          <p style="font-size:12px; margin-top:8px;">Please use the "Paste Code" tab instead.</p>
+          <p style="font-size:12px; margin-top:8px;">Please use the "Upload QR Image" or "Paste Code" tab instead.</p>
         </div>
       `;
-      toast('Camera unavailable. Use Paste Code instead.');
+      toast('Camera unavailable. Use Upload or Paste instead.');
     });
 }
 
@@ -476,9 +520,134 @@ function handleScannedQR(data) {
   stopQRScanner();
   document.getElementById('importCode').value = data;
   toast('✅ QR scanned! Importing...');
-  // Auto-import after short delay so the student sees the toast
   setTimeout(() => importStudent(true), 500);
 }
+
+/* ============================================================
+   UPLOAD QR IMAGE
+   ============================================================ */
+function handleQRImageUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    toast('Please upload an image file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Show preview
+      const previewContainer = document.getElementById('uploadPreviewContainer');
+      previewContainer.innerHTML = `
+        <div class="upload-preview">
+          <img src="${e.target.result}" alt="Uploaded QR">
+        </div>
+        <p style="font-size:12px; color:var(--muted);">Scanning image for QR code...</p>
+      `;
+
+      // Decode QR from image
+      decodeQRFromImage(img);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function decodeQRFromImage(img) {
+  if (typeof jsQR === 'undefined') {
+    toast('QR decoder not loaded. Please refresh the page.');
+    return;
+  }
+
+  // Create canvas and draw image
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = img.naturalWidth || img.width;
+  canvas.height = img.naturalHeight || img.height;
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  // Try multiple scales for better detection
+  const scales = [1, 1.5, 0.75, 2, 0.5];
+  let foundCode = null;
+
+  for (const scale of scales) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = canvas.width * scale;
+    tempCanvas.height = canvas.height * scale;
+    tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+
+    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: 'attemptBoth'
+    });
+
+    if (code && code.data) {
+      foundCode = code.data;
+      break;
+    }
+  }
+
+  if (foundCode) {
+    console.log('✅ QR decoded from image:', foundCode);
+    const previewContainer = document.getElementById('uploadPreviewContainer');
+    previewContainer.innerHTML += `
+      <p style="font-size:13px; color:var(--success); font-weight:700; margin-top:8px;">✅ QR code detected!</p>
+    `;
+    document.getElementById('importCode').value = foundCode;
+    toast('✅ QR decoded! Importing...');
+    setTimeout(() => {
+      importStudent(true);
+      clearUploadPreview();
+    }, 800);
+  } else {
+    console.warn('❌ No QR code found in image.');
+    const previewContainer = document.getElementById('uploadPreviewContainer');
+    previewContainer.innerHTML += `
+      <p style="font-size:13px; color:var(--danger); font-weight:700; margin-top:8px;">❌ No QR code detected in this image.</p>
+      <p style="font-size:12px; color:var(--muted);">Try a clearer screenshot or use the Paste Code tab.</p>
+    `;
+    toast('No QR code found. Try again or paste manually.');
+  }
+}
+
+function clearUploadPreview() {
+  document.getElementById('uploadPreviewContainer').innerHTML = '';
+  document.getElementById('qrFileInput').value = '';
+}
+
+/* Drag & drop support */
+(function setupDragDrop() {
+  const uploadArea = document.getElementById('uploadArea');
+  if (!uploadArea) return;
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadArea.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadArea.classList.remove('dragover');
+    });
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      document.getElementById('qrFileInput').files = files;
+      handleQRImageUpload({ target: { files: files } });
+    }
+  });
+})();
 
 /* ============================================================
    IMPORT STUDENT
@@ -509,7 +678,7 @@ function clearImport() {
 }
 
 /* ============================================================
-   FILTER — SECTION DROPDOWN DYNAMIC BY GRADE
+   FILTER
    ============================================================ */
 function onFilterGradeChange() {
   const grade = document.getElementById('filterGrade').value;
