@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Instructor Dashboard - Iba High School</title>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
   :root {
     --primary: #1a3a6b;
@@ -83,6 +84,38 @@
   .section-editor label { margin: 0; font-size: 12px; min-width: 70px; }
   .section-editor select { padding: 6px 8px; font-size: 13px; }
 
+  .import-tabs {
+    display: flex; gap: 6px; margin-bottom: 12px;
+    border-bottom: 2px solid #ecf0f1;
+  }
+  .import-tab {
+    padding: 8px 16px; background: transparent; border: none;
+    font-size: 14px; font-weight: 600; color: var(--muted);
+    cursor: pointer; border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+  }
+  .import-tab.active {
+    color: var(--primary); border-bottom-color: var(--accent);
+  }
+  .import-panel { display: none; }
+  .import-panel.active { display: block; }
+
+  #qr-reader {
+    width: 100%; max-width: 400px; margin: 0 auto;
+    border-radius: 12px; overflow: hidden;
+    background: #000; min-height: 280px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #qr-reader video {
+    width: 100% !important; height: auto !important;
+    border-radius: 12px;
+  }
+  #qr-reader-placeholder {
+    color: white; text-align: center; padding: 40px 20px;
+    font-size: 14px;
+  }
+  #qr-reader-placeholder .icon { font-size: 48px; margin-bottom: 12px; }
+
   .gate {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
@@ -150,11 +183,37 @@
 
     <div class="card">
       <h2>📥 Import Student Data</h2>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Paste the export code from the student's app below, then click Import. The Gradebook will auto-refresh.</p>
-      <textarea id="importCode" placeholder="Paste the student's export code here..."></textarea>
-      <div style="margin-top:8px;">
-        <button class="btn btn-success" onclick="importStudent()">Import Student</button>
-        <button class="btn btn-outline" onclick="clearImport()">Clear</button>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Scan the student's QR code or paste the export code manually.</p>
+
+      <div class="import-tabs">
+        <button class="import-tab active" onclick="switchImportTab('scan', this)">📷 Scan QR Code</button>
+        <button class="import-tab" onclick="switchImportTab('paste', this)">📋 Paste Code</button>
+      </div>
+
+      <!-- QR Scanner Panel -->
+      <div id="importPanelScan" class="import-panel active">
+        <div id="qr-reader">
+          <div id="qr-reader-placeholder">
+            <div class="icon">📷</div>
+            <p>Click <strong>Start Camera</strong> to scan the student's QR code.</p>
+          </div>
+        </div>
+        <div style="margin-top:12px; text-align:center;">
+          <button class="btn btn-success" id="startScanBtn" onclick="startQRScanner()">📷 Start Camera</button>
+          <button class="btn btn-danger" id="stopScanBtn" onclick="stopQRScanner()" style="display:none;">⏹ Stop Camera</button>
+        </div>
+        <p style="font-size:12px; color:var(--muted); margin-top:8px; text-align:center;">
+          💡 Allow camera access when prompted. Works best in good lighting.
+        </p>
+      </div>
+
+      <!-- Paste Panel -->
+      <div id="importPanelPaste" class="import-panel">
+        <textarea id="importCode" placeholder="Paste the student's export code here..."></textarea>
+        <div style="margin-top:8px;">
+          <button class="btn btn-success" onclick="importStudent()">Import Student</button>
+          <button class="btn btn-outline" onclick="clearImport()">Clear</button>
+        </div>
       </div>
     </div>
 
@@ -256,6 +315,7 @@ function checkPassword() {
 }
 
 function lockDashboard() {
+  stopQRScanner();
   sessionStorage.removeItem('ihs_admin_unlocked');
   document.getElementById('passwordGate').style.display = 'flex';
   document.getElementById('mainContent').classList.remove('unlocked');
@@ -266,6 +326,7 @@ function lockDashboard() {
 
 function logout() {
   if (!confirm('Logout from Instructor Dashboard? The password will be required again.')) return;
+  stopQRScanner();
   sessionStorage.removeItem('ihs_admin_unlocked');
   window.location.href = 'index.html';
 }
@@ -304,6 +365,152 @@ function getProficiency(score) {
   return 'Did Not Meet Expectations';
 }
 
+/* ============================================================
+   IMPORT TABS
+   ============================================================ */
+function switchImportTab(tab, btn) {
+  document.querySelectorAll('.import-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.import-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  if (tab === 'scan') {
+    document.getElementById('importPanelScan').classList.add('active');
+  } else {
+    document.getElementById('importPanelPaste').classList.add('active');
+    stopQRScanner();
+  }
+}
+
+/* ============================================================
+   QR SCANNER (jsQR)
+   ============================================================ */
+let qrVideoStream = null;
+let qrAnimationFrame = null;
+let qrCanvas = null;
+let qrContext = null;
+
+function startQRScanner() {
+  const reader = document.getElementById('qr-reader');
+  reader.innerHTML = '<video id="qr-video" playsinline></video>';
+
+  const video = document.getElementById('qr-video');
+  if (!video) return;
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(stream => {
+      qrVideoStream = stream;
+      video.srcObject = stream;
+      video.setAttribute('playsinline', 'true');
+      video.play();
+
+      // Create hidden canvas for frame capture
+      qrCanvas = document.createElement('canvas');
+      qrContext = qrCanvas.getContext('2d');
+
+      document.getElementById('startScanBtn').style.display = 'none';
+      document.getElementById('stopScanBtn').style.display = 'inline-block';
+
+      requestAnimationFrame(scanQRFrame);
+    })
+    .catch(err => {
+      console.error('Camera error:', err);
+      reader.innerHTML = `
+        <div id="qr-reader-placeholder">
+          <div class="icon">⚠️</div>
+          <p>Camera access was denied or unavailable.</p>
+          <p style="font-size:12px; margin-top:8px;">Please use the "Paste Code" tab instead.</p>
+        </div>
+      `;
+      toast('Camera unavailable. Use Paste Code instead.');
+    });
+}
+
+function scanQRFrame() {
+  const video = document.getElementById('qr-video');
+  if (!video || !qrVideoStream) return;
+
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    qrCanvas.width = video.videoWidth;
+    qrCanvas.height = video.videoHeight;
+    qrContext.drawImage(video, 0, 0, qrCanvas.width, qrCanvas.height);
+    const imageData = qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+
+    if (typeof jsQR !== 'undefined') {
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert'
+      });
+      if (code && code.data) {
+        console.log('✅ QR Code detected:', code.data);
+        handleScannedQR(code.data);
+        return;
+      }
+    }
+  }
+  qrAnimationFrame = requestAnimationFrame(scanQRFrame);
+}
+
+function stopQRScanner() {
+  if (qrAnimationFrame) {
+    cancelAnimationFrame(qrAnimationFrame);
+    qrAnimationFrame = null;
+  }
+  if (qrVideoStream) {
+    qrVideoStream.getTracks().forEach(track => track.stop());
+    qrVideoStream = null;
+  }
+  const reader = document.getElementById('qr-reader');
+  if (reader) {
+    reader.innerHTML = `
+      <div id="qr-reader-placeholder">
+        <div class="icon">📷</div>
+        <p>Click <strong>Start Camera</strong> to scan the student's QR code.</p>
+      </div>
+    `;
+  }
+  const startBtn = document.getElementById('startScanBtn');
+  const stopBtn = document.getElementById('stopScanBtn');
+  if (startBtn) startBtn.style.display = 'inline-block';
+  if (stopBtn) stopBtn.style.display = 'none';
+}
+
+function handleScannedQR(data) {
+  stopQRScanner();
+  document.getElementById('importCode').value = data;
+  toast('✅ QR scanned! Importing...');
+  // Auto-import after short delay so the student sees the toast
+  setTimeout(() => importStudent(true), 500);
+}
+
+/* ============================================================
+   IMPORT STUDENT
+   ============================================================ */
+function importStudent(silent = false) {
+  const code = document.getElementById('importCode').value.trim();
+  if (!code) {
+    if (!silent) toast('Please paste or scan an export code.');
+    return;
+  }
+  try {
+    const payload = JSON.parse(decodeURIComponent(escape(atob(code))));
+    const store = getStore();
+    const key = `${payload.studentId}_${payload.term}_${payload.subject}`;
+    store.students[key] = payload;
+    saveStore(store);
+    document.getElementById('importCode').value = '';
+    toast(`✅ ${payload.firstName} ${payload.lastName} imported.`);
+    broadcastUpdate('import');
+    renderStudents();
+  } catch(e) {
+    console.error('Import error:', e);
+    toast('Invalid code. Please check and try again.');
+  }
+}
+function clearImport() {
+  document.getElementById('importCode').value = '';
+}
+
+/* ============================================================
+   FILTER — SECTION DROPDOWN DYNAMIC BY GRADE
+   ============================================================ */
 function onFilterGradeChange() {
   const grade = document.getElementById('filterGrade').value;
   const sectionSel = document.getElementById('filterSection');
@@ -328,27 +535,9 @@ function onFilterGradeChange() {
   renderStudents();
 }
 
-function importStudent() {
-  const code = document.getElementById('importCode').value.trim();
-  if (!code) { toast('Please paste an export code.'); return; }
-  try {
-    const payload = JSON.parse(decodeURIComponent(escape(atob(code))));
-    const store = getStore();
-    const key = `${payload.studentId}_${payload.term}_${payload.subject}`;
-    store.students[key] = payload;
-    saveStore(store);
-    document.getElementById('importCode').value = '';
-    toast('✅ Student imported. Gradebook will auto-refresh.');
-    broadcastUpdate('import');
-    renderStudents();
-  } catch(e) {
-    toast('Invalid code. Please check and try again.');
-  }
-}
-function clearImport() {
-  document.getElementById('importCode').value = '';
-}
-
+/* ============================================================
+   RENDER STUDENTS
+   ============================================================ */
 function renderStudents() {
   const store = getStore();
   const nameFilter = document.getElementById('filterName').value.toLowerCase();
